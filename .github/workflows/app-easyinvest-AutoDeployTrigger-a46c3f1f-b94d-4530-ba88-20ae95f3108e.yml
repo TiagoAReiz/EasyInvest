@@ -7,7 +7,7 @@ on:
     branches: 
       [ main ]
     paths:
-    - '**'
+    - 'backend/**'
     - '.github/workflows/app-easyinvest-AutoDeployTrigger-a46c3f1f-b94d-4530-ba88-20ae95f3108e.yml'
 
   # Allow manual trigger 
@@ -35,15 +35,12 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}/backend
-          _dockerfilePathKey_: _dockerfilePath_
-          _targetLabelKey_: _targetLabel_
+          dockerfilePath: Dockerfile
           registryUrl: acreasyinvest.azurecr.io
           registryUsername: ${{ secrets.APPEASYINVEST_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.APPEASYINVEST_REGISTRY_PASSWORD }}
           containerAppName: app-easyinvest
           resourceGroup: rg-easyinvest
           imageToBuild: acreasyinvest.azurecr.io/app-easyinvest:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
 
 
