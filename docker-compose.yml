@@ -30,6 +30,9 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-user}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-investment_db}
       - BRAPI_TOKEN=${BRAPI_TOKEN:-""}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-""}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-""}
+      - JWT_SECRET=${JWT_SECRET:-"change-me-in-production"}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-""}
     depends_on:
       - db
     # Comando de inicialização com Hot Reload para desenvolvimento

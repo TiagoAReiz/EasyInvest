@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(cd /c/Users/tiago/Desktop/WorkPlace/\"Projeto Day\")",
+      "Bash(xargs ls:*)",
+      "Bash(pip install:*)",
+      "Bash(pip3 --version)",
+      "Bash(pip --version)",
+      "Bash(py -m pip --version)",
+      "Bash(py -m pip install alembic)",
+      "Bash(py -m alembic init alembic)",
+      "Bash(py -m pip install fastapi pydantic pydantic-settings sqlalchemy python-jose google-auth cryptography)",
+      "Bash(py -c \"from app.db.models import User, Asset, WalletConnection, AssetQuote, PortfolioPosition, PositionHistory; print\\(''Models OK''\\)\")",
+      "Bash(py -c \"from app.schemas.auth import GoogleLoginRequest, TokenResponse; from app.schemas.portfolio import PositionCreate, PortfolioSummary; from app.schemas.asset import AssetResponse; from app.schemas.connection import ConnectionCreate; print\\(''Schemas OK''\\)\")",
+      "Bash(py -c \"from app.core.security import create_access_token, create_refresh_token; print\\(''Security OK''\\)\")",
+      "Bash(py -c \"from app.core.deps import get_current_user; print\\(''Deps OK''\\)\")",
+      "Bash(py -c \"from app.api.v1.api import api_router; print\\(''Router OK''\\); from app.main import app; print\\(''App OK''\\); print\\(''Routes:''\\); [print\\(f''  {r.methods} {r.path}''\\) for r in app.routes]\")",
+      "Bash(py -m pytest --version)",
+      "Bash(py -m pip show pytest httpx)",
+      "Bash(py -m pytest tests/ -v --tb=short)",
+      "Bash(py -m pytest tests/test_security.py -v --tb=short)",
+      "Bash(py -m pytest tests/test_auth.py::TestMe::test_me_without_token_returns_403 -v --tb=long)",
+      "Bash(py -m pytest tests/test_auth.py -v --tb=short)",
+      "Bash(grep -E \"\\\\.\\(config|env|d\\\\.ts|json\\)$\")",
+      "Bash(npx next:*)",
+      "Bash(npm run:*)"
+    ]
+  }
+}

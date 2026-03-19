@@ -14,5 +14,5 @@ COPY . .
 
 EXPOSE 3000
 
-# Executar em modo desenvolvimento (usando sh condicional para não quebrar se não houver projeto ainda)
-CMD ["sh", "-c", "if [ -f package.json ]; then npm run dev; else echo 'Projeto Next.js não inicializado. Execute create-next-app na pasta frontend.'; sleep infinity; fi"]
+# Executar em modo desenvolvimento instalando as dependências antes para garantir que novos pacotes funcionem
+CMD ["sh", "-c", "if [ -f package.json ]; then npm install && npm run dev; else echo 'Projeto Next.js não inicializado. Execute create-next-app na pasta frontend.'; sleep infinity; fi"]
