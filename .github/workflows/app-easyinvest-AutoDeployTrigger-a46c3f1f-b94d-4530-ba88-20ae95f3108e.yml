@@ -42,5 +42,19 @@ jobs:
           containerAppName: app-easyinvest
           resourceGroup: rg-easyinvest
           imageToBuild: acreasyinvest.azurecr.io/app-easyinvest:${{ github.sha }}
+          environmentVariables: >
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            POSTGRES_USER=${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_ACCESS_TOKEN_EXPIRATION_SECONDS=3600
+            JWT_REFRESH_TOKEN_EXPIRATION_SECONDS=604800
+            BRAPI_TOKEN=${{ secrets.BRAPI_TOKEN }}
+            BRAPI_BASE_URL=https://brapi.dev/api
+            BCB_SGS_BASE_URL=https://api.bcb.gov.br/dados/serie
+            ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
 
