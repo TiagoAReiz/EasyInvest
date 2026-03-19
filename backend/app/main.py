@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.api import api_router
 from app.core.config import settings
-
+ 
 # Importar models para que o Base.metadata os registre
 import app.db.models  # noqa: F401
 
