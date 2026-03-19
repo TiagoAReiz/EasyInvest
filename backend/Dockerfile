@@ -21,3 +21,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 EXPOSE 8000
+
+# Comando padrão para produção (Azure Container Apps)
+# Em dev local, o docker-compose sobrescreve com --reload
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
