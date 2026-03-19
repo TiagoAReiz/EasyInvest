@@ -1,7 +1,8 @@
 'use client';
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { getMe, loginWithGoogle, clearTokens, getTokens } from '@/lib/api';
+import { clearTokens, getTokens } from '@/lib/api';
+import { getMe, loginWithGoogle } from '@/services/authService';
 import type { UserResponse } from '@/lib/types';
 
 interface AuthContextType {

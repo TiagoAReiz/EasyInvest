@@ -6,7 +6,7 @@ import {
   createConnection,
   deleteConnection,
   syncConnection as apiSyncConnection,
-} from '@/lib/api';
+} from '@/services/connectionService';
 import type { ConnectionResponse, ConnectionCreateRequest } from '@/lib/types';
 
 export function useConnections() {

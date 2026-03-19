@@ -24,7 +24,8 @@
       "Bash(py -m pytest tests/test_auth.py -v --tb=short)",
       "Bash(grep -E \"\\\\.\\(config|env|d\\\\.ts|json\\)$\")",
       "Bash(npx next:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm install:*)"
     ]
   }
 }

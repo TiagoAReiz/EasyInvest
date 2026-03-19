@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAssetSearch } from '@/hooks/useAssetSearch';
 import AssetSearchDropdown from '@/components/AssetSearchDropdown';
-import { createPosition } from '@/lib/api';
+import { createPosition } from '@/services/portfolioService';
 import type { AssetResponse } from '@/lib/types';
 import { OriginEnum, RateTypeEnum } from '@/lib/types';
 
@@ -101,7 +101,7 @@ export default function AddPositionPage() {
 
       setIsSubmitting(true);
       try {
-        const assets = await (await import('@/lib/api')).searchAssets(fixaName);
+        const assets = await (await import('@/services/assetService')).searchAssets(fixaName);
         if (assets.length === 0) {
           setError('Ativo de renda fixa não registrado no sistema. Contate o suporte.');
           setIsSubmitting(false);

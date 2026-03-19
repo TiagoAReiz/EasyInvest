@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getHistory } from '@/lib/api';
+import { getHistory } from '@/services/historyService';
 import type { HistoryEntry } from '@/lib/types';
 
 export function useHistory(period: string = '30d') {

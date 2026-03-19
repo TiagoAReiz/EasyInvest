@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
-import { searchAssets } from '@/lib/api';
+import { searchAssets } from '@/services/assetService';
 import type { AssetResponse } from '@/lib/types';
 
 export function useAssetSearch() {

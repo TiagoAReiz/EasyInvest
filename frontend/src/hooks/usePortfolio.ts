@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { getPortfolio, getPortfolioSummary } from '@/lib/api';
+import { getPortfolio, getPortfolioSummary } from '@/services/portfolioService';
 import type { PositionWithQuote, PortfolioSummary } from '@/lib/types';
 
 export function usePortfolio() {
