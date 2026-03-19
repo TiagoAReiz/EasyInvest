@@ -29,3 +29,8 @@ class AssetCurrentPriceResponse(BaseModel):
     asset_id: UUID
     ticker: str
     price: float | None
+
+
+class FixedIncomeAssetCreate(BaseModel):
+    name: str
+    ticker: str | None = None

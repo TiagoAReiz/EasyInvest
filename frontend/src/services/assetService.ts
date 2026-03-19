@@ -8,6 +8,11 @@ export async function searchAssets(query: string): Promise<AssetResponse[]> {
   return res.data;
 }
 
+export async function createFixedIncomeAsset(name: string): Promise<AssetResponse> {
+  const res = await api.post<AssetResponse>('/assets/fixed-income', { name });
+  return res.data;
+}
+
 export async function getAssetCurrentPrice(assetId: string): Promise<number | null> {
   try {
     const res = await api.get<{ asset_id: string; ticker: string; price: number | null }>(

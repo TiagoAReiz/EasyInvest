@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAssetSearch } from '@/hooks/useAssetSearch';
 import AssetSearchDropdown from '@/components/AssetSearchDropdown';
 import { createPosition } from '@/services/portfolioService';
-import { getAssetCurrentPrice } from '@/services/assetService';
+import { getAssetCurrentPrice, createFixedIncomeAsset } from '@/services/assetService';
 import type { AssetResponse } from '@/lib/types';
 import { OriginEnum, RateTypeEnum } from '@/lib/types';
 
@@ -115,15 +115,11 @@ export default function AddPositionPage() {
 
       setIsSubmitting(true);
       try {
-        const assets = await (await import('@/services/assetService')).searchAssets(fixaName);
-        if (assets.length === 0) {
-          setError('Ativo de renda fixa não registrado no sistema. Contate o suporte.');
-          setIsSubmitting(false);
-          return;
-        }
+        // Cria (ou reutiliza) o ativo de renda fixa no catálogo
+        const asset = await createFixedIncomeAsset(fixaName);
 
         await createPosition({
-          asset_id: assets[0].id,
+          asset_id: asset.id,
           quantity: 1,
           average_price: parseFloat(investedAmount),
           origin: OriginEnum.MANUAL,

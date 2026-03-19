@@ -6,9 +6,14 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
-from app.db.models import Asset, AssetQuote, User
+from app.db.models import Asset, AssetQuote, AssetTypeEnum, User
 from app.db.session import get_db
-from app.schemas.asset import AssetCurrentPriceResponse, AssetQuoteResponse, AssetResponse
+from app.schemas.asset import (
+    AssetCurrentPriceResponse,
+    AssetQuoteResponse,
+    AssetResponse,
+    FixedIncomeAssetCreate,
+)
 from app.services.brapi import get_or_create_assets_batch, get_quote_brapi, search_brapi
 
 router = APIRouter()
@@ -60,6 +65,32 @@ def search_assets(
             local_results.extend(new_assets)
 
     return local_results
+
+
+@router.post("/fixed-income", response_model=AssetResponse, status_code=201)
+def create_fixed_income_asset(
+    body: FixedIncomeAssetCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Cria um ativo de renda fixa (CDB, Tesouro, etc.) no catálogo."""
+    # Gera ticker automático a partir do nome se não informado
+    ticker = body.ticker or body.name.upper().replace(" ", "_")[:30]
+
+    # Verifica se já existe
+    existing = db.query(Asset).filter(Asset.ticker == ticker).first()
+    if existing:
+        return existing
+
+    asset = Asset(
+        ticker=ticker,
+        name=body.name,
+        type=AssetTypeEnum.FIXED_INCOME,
+    )
+    db.add(asset)
+    db.commit()
+    db.refresh(asset)
+    return asset
 
 
 @router.get("/{asset_id}/price", response_model=AssetCurrentPriceResponse)
