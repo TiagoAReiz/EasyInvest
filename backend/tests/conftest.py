@@ -1,6 +1,7 @@
 import uuid
 from collections.abc import Generator
 from datetime import date, datetime, timezone
+from unittest.mock import patch
 
 import pytest
 from cryptography.fernet import Fernet
@@ -44,6 +45,17 @@ TEST_FERNET_KEY = Fernet.generate_key().decode()
 def _patch_encryption_key(monkeypatch):
     """Garante que ENCRYPTION_KEY esteja configurada em todos os testes."""
     monkeypatch.setattr(settings, "ENCRYPTION_KEY", TEST_FERNET_KEY)
+
+
+@pytest.fixture(autouse=True)
+def _mock_brapi():
+    """Impede que testes batam na brapi.dev real."""
+    with (
+        patch("app.api.v1.routers.assets.search_brapi", return_value=[]),
+        patch("app.api.v1.routers.assets.get_or_create_assets_batch", return_value=[]),
+        patch("app.api.v1.routers.portfolio.refresh_quotes_for_assets", return_value={}),
+    ):
+        yield
 
 
 @pytest.fixture()

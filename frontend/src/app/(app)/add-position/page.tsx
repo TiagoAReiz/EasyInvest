@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useAssetSearch } from '@/hooks/useAssetSearch';
 import AssetSearchDropdown from '@/components/AssetSearchDropdown';
 import { createPosition } from '@/services/portfolioService';
+import { getAssetCurrentPrice } from '@/services/assetService';
 import type { AssetResponse } from '@/lib/types';
 import { OriginEnum, RateTypeEnum } from '@/lib/types';
 
@@ -59,10 +60,23 @@ export default function AddPositionPage() {
     setShowDropdown(true);
   };
 
-  const handleAssetSelect = (asset: AssetResponse) => {
+  const [isFetchingPrice, setIsFetchingPrice] = useState(false);
+
+  const handleAssetSelect = async (asset: AssetResponse) => {
     setSelectedAsset(asset);
     setTickerQuery(asset.ticker);
     setShowDropdown(false);
+
+    // Busca preço atual e pré-preenche o campo de preço médio
+    setIsFetchingPrice(true);
+    try {
+      const price = await getAssetCurrentPrice(asset.id);
+      if (price !== null) {
+        setAveragePrice(price.toFixed(2));
+      }
+    } finally {
+      setIsFetchingPrice(false);
+    }
   };
 
   const handleSubmit = async () => {
@@ -231,9 +245,13 @@ export default function AddPositionPage() {
                     type="number"
                     value={averagePrice}
                     onChange={(e) => setAveragePrice(e.target.value)}
-                    placeholder="0,00"
-                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-10 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
+                    placeholder={isFetchingPrice ? 'Buscando...' : '0,00'}
+                    disabled={isFetchingPrice}
+                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-10 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42] disabled:opacity-60"
                   />
+                  {isFetchingPrice && (
+                    <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-accent animate-spin" />
+                  )}
                 </div>
               </div>
             </div>

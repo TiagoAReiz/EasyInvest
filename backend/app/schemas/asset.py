@@ -23,3 +23,9 @@ class AssetQuoteResponse(BaseModel):
     fetched_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class AssetCurrentPriceResponse(BaseModel):
+    asset_id: UUID
+    ticker: str
+    price: float | None

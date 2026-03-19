@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -14,25 +15,75 @@ from app.schemas.portfolio import (
     PositionUpdate,
     PositionWithQuote,
 )
+from app.services.brapi import refresh_quotes_for_assets
 
 router = APIRouter()
 
-
-def _get_latest_price(db: Session, asset_id: UUID) -> float | None:
-    """Busca a cotação mais recente de um ativo."""
-    quote = (
-        db.query(AssetQuote)
-        .filter(AssetQuote.asset_id == asset_id)
-        .order_by(desc(AssetQuote.fetched_at))
-        .first()
-    )
-    return float(quote.price) if quote else None
+# Cotações com menos de 15 min são consideradas frescas
+QUOTE_FRESHNESS = timedelta(minutes=15)
 
 
-def _enrich_position(db: Session, pos: PortfolioPosition) -> PositionWithQuote:
+def _get_fresh_prices(db: Session, positions: list[PortfolioPosition]) -> dict[UUID, float]:
+    """Busca preços atualizados para todas as posições de uma vez.
+
+    1. Verifica quais ativos já têm cotação recente no banco (< 15 min)
+    2. Para os que não têm, busca em batch na brapi.dev e salva
+    3. Retorna dict {asset_id: price}
+    """
+    if not positions:
+        return {}
+
+    # Coleta asset_ids únicos e seus tickers
+    asset_map: dict[UUID, str] = {}
+    for pos in positions:
+        if pos.asset_id not in asset_map:
+            asset_map[pos.asset_id] = pos.asset.ticker
+
+    prices: dict[UUID, float] = {}
+    stale_assets: dict[UUID, str] = {}  # asset_id -> ticker (precisam refresh)
+
+    cutoff = datetime.now(timezone.utc) - QUOTE_FRESHNESS
+
+    # Verifica cotações recentes no banco
+    for asset_id, ticker in asset_map.items():
+        quote = (
+            db.query(AssetQuote)
+            .filter(
+                AssetQuote.asset_id == asset_id,
+                AssetQuote.fetched_at >= cutoff,
+            )
+            .order_by(desc(AssetQuote.fetched_at))
+            .first()
+        )
+        if quote:
+            prices[asset_id] = float(quote.price)
+        else:
+            # Só busca na brapi ativos de renda variável (STOCK/FII)
+            asset = db.query(Asset).filter(Asset.id == asset_id).first()
+            if asset and asset.type in (AssetTypeEnum.STOCK, AssetTypeEnum.FII):
+                stale_assets[asset_id] = ticker
+            else:
+                # Para outros tipos, tenta pegar a última cotação do banco (qualquer idade)
+                old_quote = (
+                    db.query(AssetQuote)
+                    .filter(AssetQuote.asset_id == asset_id)
+                    .order_by(desc(AssetQuote.fetched_at))
+                    .first()
+                )
+                if old_quote:
+                    prices[asset_id] = float(old_quote.price)
+
+    # Busca cotações faltantes em batch na brapi e salva no banco
+    if stale_assets:
+        new_prices = refresh_quotes_for_assets(db, stale_assets)
+        prices.update(new_prices)
+
+    return prices
+
+
+def _enrich_position(pos: PortfolioPosition, current_price: float | None) -> PositionWithQuote:
     """Transforma uma posição do DB em PositionWithQuote com dados calculados."""
     asset = pos.asset
-    current_price = _get_latest_price(db, pos.asset_id)
 
     quantity = float(pos.quantity)
     avg_price = float(pos.average_price)
@@ -79,7 +130,14 @@ def read_portfolio(
         .filter(PortfolioPosition.user_id == current_user.id)
         .all()
     )
-    return [_enrich_position(db, p) for p in positions]
+
+    # Busca todos os preços em batch (1-2 requests max)
+    prices = _get_fresh_prices(db, positions)
+
+    return [
+        _enrich_position(p, prices.get(p.asset_id))
+        for p in positions
+    ]
 
 
 @router.get("/summary", response_model=PortfolioSummary)
@@ -94,7 +152,13 @@ def portfolio_summary(
         .all()
     )
 
-    enriched = [_enrich_position(db, p) for p in positions]
+    # Busca todos os preços em batch (1-2 requests max)
+    prices = _get_fresh_prices(db, positions)
+
+    enriched = [
+        _enrich_position(p, prices.get(p.asset_id))
+        for p in positions
+    ]
 
     totals = {
         "stock": 0.0,
