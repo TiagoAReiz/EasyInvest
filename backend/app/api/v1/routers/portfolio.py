@@ -68,7 +68,7 @@ def _enrich_position(db: Session, pos: PortfolioPosition) -> PositionWithQuote:
     )
 
 
-@router.get("/", response_model=list[PositionWithQuote])
+@router.get("", response_model=list[PositionWithQuote])
 def read_portfolio(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),

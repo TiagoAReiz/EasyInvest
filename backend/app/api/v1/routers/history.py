@@ -19,7 +19,7 @@ PERIOD_MAP = {
 }
 
 
-@router.get("/", response_model=list[HistoryEntry])
+@router.get("", response_model=list[HistoryEntry])
 def read_history(
     period: str = Query("30d", description="Período: 7d, 30d, 90d, 1y, all"),
     current_user: User = Depends(get_current_user),

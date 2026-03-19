@@ -12,7 +12,7 @@ from app.schemas.connection import ConnectionCreate, ConnectionResponse
 router = APIRouter()
 
 
-@router.get("/", response_model=list[ConnectionResponse])
+@router.get("", response_model=list[ConnectionResponse])
 def list_connections(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
@@ -25,7 +25,7 @@ def list_connections(
     )
 
 
-@router.post("/", response_model=ConnectionResponse, status_code=201)
+@router.post("", response_model=ConnectionResponse, status_code=201)
 def create_connection(
     body: ConnectionCreate,
     current_user: User = Depends(get_current_user),
