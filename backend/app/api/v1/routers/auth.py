@@ -12,7 +12,7 @@ from app.schemas.auth import (
     RefreshRequest,
     TokenResponse,
     UserResponse, 
-)
+) 
 from app.services.auth import generate_tokens, upsert_user, verify_google_token
 
 router = APIRouter()
