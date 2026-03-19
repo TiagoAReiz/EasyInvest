@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, ChevronLeft, Calendar, Loader2 } from 'lucide-react';
+import { Search, ChevronLeft, Calendar, Loader2, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAssetSearch } from '@/hooks/useAssetSearch';
@@ -36,6 +36,22 @@ export default function AddPositionPage() {
   const [error, setError] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
+  // Stepper progress logic
+  const getProgress = () => {
+    if (assetType === 'variavel') {
+      let p = 1; // Step 1: Type selected
+      if (selectedAsset) p = 2; // Step 2: Asset selected
+      if (selectedAsset && quantity && averagePrice) p = 3; // Step 3: Values filled
+      return p;
+    } else {
+      let p = 1;
+      if (fixaName) p = 2;
+      if (fixaName && investedAmount) p = 3;
+      return p;
+    }
+  };
+  const step = getProgress();
+
   const handleTickerChange = (value: string) => {
     setTickerQuery(value);
     setSelectedAsset(null);
@@ -54,11 +70,11 @@ export default function AddPositionPage() {
 
     if (assetType === 'variavel') {
       if (!selectedAsset) {
-        setError('Selecione um ativo da lista de busca.');
+        setError('Busque e selecione um ativo da lista do menu.');
         return;
       }
       if (!quantity || !averagePrice) {
-        setError('Preencha quantidade e preço médio.');
+        setError('Preencha quantidade e preço médio obrigatórios.');
         return;
       }
 
@@ -78,19 +94,16 @@ export default function AddPositionPage() {
         setIsSubmitting(false);
       }
     } else {
-      // Renda fixa — still needs an asset to be created/found in backend
-      // For now, we validate and submit with what we have
       if (!fixaName || !investedAmount) {
-        setError('Preencha nome e valor investido.');
+        setError('Preencha o nome do título e o valor investido.');
         return;
       }
 
       setIsSubmitting(true);
       try {
-        // Search for the fixed income asset by name
         const assets = await (await import('@/lib/api')).searchAssets(fixaName);
         if (assets.length === 0) {
-          setError('Ativo de renda fixa não encontrado. Verifique o nome.');
+          setError('Ativo de renda fixa não registrado no sistema. Contate o suporte.');
           setIsSubmitting(false);
           return;
         }
@@ -117,58 +130,72 @@ export default function AddPositionPage() {
   };
 
   return (
-    <div className="flex flex-col px-4 pt-10 pb-8 lg:px-8 lg:pt-8 max-w-2xl mx-auto w-full">
+    <div className="flex flex-col px-4 pt-8 pb-10 lg:px-8 lg:pt-10 max-w-2xl mx-auto w-full">
 
-      {/* Header */}
-      <header className="flex items-center mb-8 relative animate-fade-in">
-        <Link href="/dashboard" className="absolute left-0 p-2 -ml-2 text-zinc-400 hover:text-white transition-colors rounded-lg hover:bg-zinc-800/50">
-          <ChevronLeft size={24} />
+      {/* ── Wizard Header ── */}
+      <header className="flex items-center justify-between mb-8 animate-fade-in relative z-20">
+        <Link href="/dashboard" className="flex items-center justify-center w-10 h-10 bg-[#1e1e22] text-[#8a8a92] hover:text-white hover:bg-[#2a2a2e] transition-colors rounded-full border border-[#2a2a2e]/60">
+          <ChevronLeft size={20} strokeWidth={2.5} />
         </Link>
-        <h1 className="text-xl font-bold text-white w-full text-center">Adicionar Lançamento</h1>
+        <span className="text-[11px] font-bold text-[#6a6a72] uppercase tracking-widest bg-[#161619] py-1.5 px-3 rounded-full border border-[#2a2a2e]/40">
+          Passo {step} de 3
+        </span>
       </header>
+      
+      <div className="mb-8 text-center animate-fade-in stagger-1">
+        <h1 className="text-3xl font-extrabold text-white font-[family-name:var(--font-outfit)]">Lançamento Novo</h1>
+        <p className="text-sm text-[#6a6a72] mt-2">Adicione registros manuais de investimentos comprados.</p>
+      </div>
 
-      {/* Toggle */}
-      <div className="flex p-1 bg-zinc-900/80 rounded-xl mb-8 ring-1 ring-zinc-800 animate-fade-in stagger-1">
+      {/* ── Toggle (Step 1) ── */}
+      <div className="flex p-1.5 bg-[#111114] rounded-2xl mb-8 border border-[#2a2a2e]/60 animate-fade-in stagger-2 relative">
         <button
           onClick={() => setAssetType('variavel')}
-          className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-            assetType === 'variavel'
-              ? 'bg-zinc-800 text-white shadow-sm ring-1 ring-zinc-700'
-              : 'text-zinc-500 hover:text-zinc-300'
+          className={`flex-1 py-3 text-[13px] font-bold rounded-xl transition-all duration-300 z-10 ${
+            assetType === 'variavel' ? 'text-black' : 'text-[#6a6a72] hover:text-white'
           }`}
         >
           Renda Variável
         </button>
         <button
           onClick={() => setAssetType('fixa')}
-          className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-            assetType === 'fixa'
-              ? 'bg-zinc-800 text-white shadow-sm ring-1 ring-zinc-700'
-              : 'text-zinc-500 hover:text-zinc-300'
+          className={`flex-1 py-3 text-[13px] font-bold rounded-xl transition-all duration-300 z-10 ${
+            assetType === 'fixa' ? 'text-black' : 'text-[#6a6a72] hover:text-white'
           }`}
         >
           Renda Fixa
         </button>
+        
+        {/* Animated Pill Background */}
+        <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-accent rounded-xl shadow-[0_0_15px_rgba(245,197,24,0.3)] transition-all duration-300 ease-in-out ${
+          assetType === 'variavel' ? 'left-1.5' : 'left-[50%]'
+        }`} />
       </div>
 
-      {/* Form */}
-      <div className="flex-1 flex flex-col space-y-5 animate-fade-in stagger-2">
-
+      {/* ── Form Body (Steps 2-3) ── */}
+      <section className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col space-y-6 animate-fade-in stagger-3 relative gold-top-accent">
+        
         {assetType === 'variavel' ? (
           <>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-400 pl-0.5">Ativo (Ticker)</label>
-              <div className="relative">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500" size={18} />
+            <div className="space-y-2 relative">
+              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Código do Ativo (Ticker)</label>
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6a6a72] group-focus-within:text-accent transition-colors" size={18} />
                 <input
                   type="text"
                   value={tickerQuery}
                   onChange={(e) => handleTickerChange(e.target.value)}
                   onFocus={() => results.length > 0 && setShowDropdown(true)}
                   onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-                  placeholder="Ex: PETR4, HGLG11, AAPL34..."
-                  className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 pl-11 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                  placeholder="Ex: PETR4, HGLG11"
+                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm font-bold uppercase tracking-wider hover:border-[#3a3a42]"
                 />
+                
+                {/* Visual confirmation tick if selected */}
+                {selectedAsset && (
+                  <CheckCircle2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-positive" />
+                )}
+
                 {showDropdown && (
                   <AssetSearchDropdown
                     results={results}
@@ -178,149 +205,151 @@ export default function AddPositionPage() {
                 )}
               </div>
               {selectedAsset && (
-                <p className="text-xs text-blue-400 pl-1">
-                  {selectedAsset.ticker} — {selectedAsset.name}
+                <p className="text-[11px] text-accent/80 pl-1 pt-1 font-medium bg-accent/[0.03] inline-block px-2 py-0.5 rounded-md mt-1">
+                  Selecionado: {selectedAsset.name}
                 </p>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400 pl-0.5">Quantidade</label>
+                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Qtd Comprada</label>
                 <input
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   placeholder="0"
-                  className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400 pl-0.5">Preço Médio</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium text-sm">R$</span>
+                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Preço Médio</label>
+                <div className="relative group">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a5a62] font-semibold text-sm group-focus-within:text-accent transition-colors">R$</span>
                   <input
                     type="number"
                     value={averagePrice}
                     onChange={(e) => setAveragePrice(e.target.value)}
                     placeholder="0,00"
-                    className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 pl-10 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-10 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
                   />
                 </div>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-400 pl-0.5">Instituição (opcional)</label>
+              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Corretora (Instituição)</label>
               <input
                 type="text"
                 value={institution}
                 onChange={(e) => setInstitution(e.target.value)}
-                placeholder="Ex: XP Investimentos, NuInvest..."
-                className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                placeholder="Ex: Inter, NuInvest"
+                className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42]"
               />
             </div>
           </>
         ) : (
+          /* Renda Fixa Fields */
           <>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-400 pl-0.5">Nome / Título</label>
+              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Nome / Título Original</label>
               <input
                 type="text"
                 value={fixaName}
                 onChange={(e) => setFixaName(e.target.value)}
-                placeholder="Ex: CDB Inter 120% CDI, Tesouro IPCA+ 2035"
-                className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                placeholder="Ex: CDB Inter 120% CDI"
+                className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm font-bold tracking-wide hover:border-[#3a3a42]"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-zinc-400 pl-0.5">Instituição</label>
+              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Corretora / Banco</label>
               <input
                 type="text"
                 value={fixaInstitution}
                 onChange={(e) => setFixaInstitution(e.target.value)}
-                placeholder="Ex: Inter, XP, NuInvest..."
-                className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                placeholder="Ex: Nubank, XP"
+                className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42]"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400 pl-0.5">Valor Investido</label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-500 font-medium text-sm">R$</span>
+                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Aporte Inicial</label>
+                <div className="relative group">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a5a62] font-semibold text-sm group-focus-within:text-accent transition-colors">R$</span>
                   <input
                     type="number"
                     value={investedAmount}
                     onChange={(e) => setInvestedAmount(e.target.value)}
                     placeholder="0,00"
-                    className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 pl-9 pr-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-10 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400 pl-0.5">Rentabilidade</label>
-                <div className="relative">
+                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Taxa Pagadora</label>
+                <div className="relative group">
                   <input
                     type="number"
                     value={rateValue}
                     onChange={(e) => setRateValue(e.target.value)}
                     placeholder="110"
-                    className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 pl-4 pr-14 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-4 pr-14 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 font-medium text-sm">% CDI</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a5a62] font-semibold text-[11px] uppercase group-focus-within:text-accent transition-colors">% CDI</span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400 pl-0.5 flex items-center gap-1.5">
-                  <Calendar size={13} /> Data de Aplicação
+                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1 flex items-center gap-1.5 ">
+                  <Calendar size={12} strokeWidth={3} className="text-accent"/> Data Inicial
                 </label>
                 <input
                   type="date"
                   value={investmentDate}
                   onChange={(e) => setInvestmentDate(e.target.value)}
-                  className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42] [color-scheme:dark]"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-zinc-400 pl-0.5 flex items-center gap-1.5">
-                  <Calendar size={13} /> Vencimento
+                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1 flex items-center gap-1.5">
+                  <Calendar size={12} strokeWidth={3} className="text-[#a0a0a8]"/> Vencimento
                 </label>
                 <input
                   type="date"
                   value={maturityDate}
                   onChange={(e) => setMaturityDate(e.target.value)}
-                  className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42] [color-scheme:dark]"
                 />
               </div>
             </div>
           </>
         )}
-      </div>
+      </section>
 
       {/* Error */}
       {error && (
-        <p className="mt-4 text-sm text-red-400">{error}</p>
+        <p className="mt-4 text-sm text-negative font-medium text-center animate-fade-in">{error}</p>
       )}
 
-      {/* Action Button */}
-      <div className="mt-10 animate-fade-in stagger-3">
+      {/* ── Submit Area ── */}
+      <div className="mt-8 animate-fade-in stagger-4">
         <button
           onClick={handleSubmit}
           disabled={isSubmitting}
-          className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-lg shadow-blue-600/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          className="w-full btn-accent py-4 rounded-2xl text-[15px] transition-all duration-200 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
           {isSubmitting && <Loader2 size={18} className="animate-spin" />}
-          {isSubmitting ? 'Salvando...' : 'Salvar Lançamento'}
+          {isSubmitting ? 'Registrando...' : 'Confirmar e Salvar Posição'}
         </button>
       </div>
+      
     </div>
   );
 }

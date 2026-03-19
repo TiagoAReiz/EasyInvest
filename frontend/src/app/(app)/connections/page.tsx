@@ -86,183 +86,199 @@ export default function ConnectionsPage() {
   };
 
   return (
-    <div className="flex flex-col px-4 pt-10 pb-8 lg:px-8 lg:pt-8 space-y-8 max-w-4xl mx-auto">
+    <div className="flex flex-col px-4 pt-8 pb-10 lg:px-8 lg:pt-10 space-y-8 max-w-7xl mx-auto">
 
-      {/* Header */}
+      {/* ── Header ── */}
       <header className="animate-fade-in">
-        <h1 className="text-2xl lg:text-3xl font-bold tracking-tight text-white">Conexões</h1>
-        <p className="text-sm text-zinc-500 mt-1">Integre suas corretoras com chaves Read-Only.</p>
+        <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-[family-name:var(--font-outfit)]">Conexões</h1>
+        <p className="text-sm text-[#8a8a92] mt-1">Integre suas contas e deixe o robô fazer o resto.</p>
       </header>
 
-      {/* Error */}
+      {/* Error Banner */}
       {error && (
-        <div className="bg-red-500/10 text-red-400 rounded-xl p-4 text-sm ring-1 ring-red-500/20">
+        <div className="bg-negative/10 text-negative font-medium rounded-2xl p-4 text-sm ring-1 ring-negative/20">
           {error}
         </div>
       )}
 
-      {/* Connected Exchanges */}
-      <section className="space-y-3 animate-fade-in stagger-1">
-        <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider pl-1">Suas Conexões</h2>
+      {/* ── Two Column Layout (Desktop) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Skeleton className="h-32 rounded-2xl" />
-            <Skeleton className="h-32 rounded-2xl" />
-          </div>
-        ) : connections.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-zinc-500 animate-fade-in">
-            <Plug size={32} className="mb-3 text-zinc-700" />
-            <p className="font-medium">Nenhuma conexão configurada.</p>
-            <p className="text-sm text-zinc-600 mt-1">Conecte uma corretora abaixo.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {connections.map((conn) => (
-              <div key={conn.id} className="glass-card rounded-2xl p-4 flex flex-col space-y-3 transition-all duration-200 hover:bg-card-hover">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-zinc-800 flex items-center justify-center text-zinc-300 ring-1 ring-zinc-700/50">
-                      <LinkIcon size={18} />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-white font-semibold">
-                        {conn.label || exchangeLabels[conn.type] || conn.type}
-                      </span>
-                      <span className="text-[11px] text-zinc-500 flex items-center gap-1">
-                        <RefreshCw size={9} /> {formatDate(conn.last_synced_at)}
-                      </span>
-                    </div>
-                  </div>
+        {/* ── Left Column: Form ── */}
+        <div className="lg:col-span-5 lg:order-1 order-2 w-full animate-fade-in stagger-2">
+          <section className="glass-card rounded-3xl p-7 lg:p-8 space-y-7 relative gold-top-accent">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#111114] border border-[#2a2a2e]/60 shadow-inner">
+                <LinkIcon size={20} className="text-accent" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-white font-[family-name:var(--font-outfit)]">Nova Corretora</h2>
+                <p className="text-[12px] font-medium text-[#6a6a72]">Sincronização Read-Only</p>
+              </div>
+            </div>
 
-                  <span className={`text-[10px] uppercase font-bold px-2.5 py-1 rounded-full flex items-center gap-1 ${
-                    conn.status === ConnectionStatusEnum.ACTIVE
-                      ? 'bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20'
-                      : 'bg-red-500/10 text-red-400 ring-1 ring-red-500/20'
-                  }`}>
-                    {conn.status === ConnectionStatusEnum.ACTIVE ? (
-                      <><Activity size={9} /> Ativo</>
-                    ) : (
-                      <><AlertCircle size={9} /> Erro</>
-                    )}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between pt-1 border-t border-zinc-800/50">
-                  <button
-                    onClick={() => handleSync(conn.id)}
-                    disabled={syncingId === conn.id}
-                    className="text-xs text-zinc-500 hover:text-blue-400 transition-colors flex items-center gap-1 disabled:opacity-50"
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">Instituição</label>
+                <div className="relative group">
+                  <select
+                    value={formType}
+                    onChange={(e) => setFormType(e.target.value)}
+                    className="w-full appearance-none bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-white text-sm focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all hover:border-[#3a3a42]"
                   >
-                    {syncingId === conn.id ? (
-                      <Loader2 size={12} className="animate-spin" />
-                    ) : (
-                      <RefreshCw size={12} />
-                    )}
-                    Sincronizar
-                  </button>
-                  <button
-                    onClick={() => handleDelete(conn.id)}
-                    disabled={deletingId === conn.id}
-                    className="text-zinc-600 hover:text-red-400 transition-colors p-1.5 rounded-lg hover:bg-red-500/10 disabled:opacity-50"
-                  >
-                    {deletingId === conn.id ? (
-                      <Loader2 size={14} className="animate-spin" />
-                    ) : (
-                      <Trash2 size={14} />
-                    )}
-                  </button>
+                    <option value="">Selecione uma opção...</option>
+                    {exchangeOptions.map((opt) => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
+                  <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a6a72] pointer-events-none group-hover:text-[#8a8a92] transition-colors" />
                 </div>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
 
-      {/* Add New Connection */}
-      <section className="glass-card rounded-2xl p-6 space-y-6 animate-fade-in stagger-2">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 ring-1 ring-blue-500/20">
-            <LinkIcon size={18} className="text-blue-500" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">Nova Conexão</h2>
-            <p className="text-xs text-zinc-500">Conecte uma corretora de criptomoedas.</p>
-          </div>
-        </div>
+              <div className="space-y-2">
+                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">Nome Customizado</label>
+                <input
+                  type="text"
+                  value={formLabel}
+                  onChange={(e) => setFormLabel(e.target.value)}
+                  placeholder="Ex: Binance Secundária"
+                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-white text-sm placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all hover:border-[#3a3a42]"
+                />
+              </div>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-400 pl-0.5">Corretora (Exchange)</label>
-            <div className="relative">
-              <select
-                value={formType}
-                onChange={(e) => setFormType(e.target.value)}
-                className="w-full appearance-none bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
+              <div className="space-y-2">
+                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">API Key (Pública)</label>
+                <input
+                  type="text"
+                  value={formApiKey}
+                  onChange={(e) => setFormApiKey(e.target.value)}
+                  placeholder="Cole aqui..."
+                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-accent text-sm placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all font-mono tracking-tight"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">API Secret (Privada)</label>
+                <input
+                  type="password"
+                  value={formApiSecret}
+                  onChange={(e) => setFormApiSecret(e.target.value)}
+                  placeholder="Cole aqui..."
+                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-accent text-sm placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all font-mono tracking-tight"
+                />
+              </div>
+
+              {formError && (
+                <p className="text-sm text-negative font-medium bg-negative/5 px-3 py-2 rounded-lg border border-negative/10">{formError}</p>
+              )}
+
+              <button
+                onClick={handleSubmit}
+                disabled={isSubmitting}
+                className="w-full btn-accent py-4 rounded-xl text-sm transition-all duration-200 mt-4 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                <option value="">Selecione...</option>
-                {exchangeOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-              <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" />
+                {isSubmitting && <Loader2 size={18} className="animate-spin" />}
+                {isSubmitting ? 'Validando...' : 'Conectar Carteira'}
+              </button>
+
+              <div className="flex items-start gap-3 pt-4 border-t border-[#2a2a2e]/40 mt-4">
+                <div className="p-1.5 bg-positive/10 rounded-lg">
+                  <ShieldCheck size={16} className="text-positive shrink-0" />
+                </div>
+                <p className="text-[11px] text-[#8a8a92] leading-relaxed">
+                  Criptografado com <strong className="text-white font-medium">AES-256</strong>. Exija permissões apenas de leitura (Read-Only) na sua corretora. Nunca armazenamos permissões de saque.
+                </p>
+              </div>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-400 pl-0.5">Label (opcional)</label>
-            <input
-              type="text"
-              value={formLabel}
-              onChange={(e) => setFormLabel(e.target.value)}
-              placeholder="Ex: Minha conta Binance"
-              className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-400 pl-0.5">API Key (Leitura)</label>
-            <input
-              type="text"
-              value={formApiKey}
-              onChange={(e) => setFormApiKey(e.target.value)}
-              placeholder="Cole sua chave pública gerada na exchange..."
-              className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all font-mono text-sm"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-400 pl-0.5">API Secret</label>
-            <input
-              type="password"
-              value={formApiSecret}
-              onChange={(e) => setFormApiSecret(e.target.value)}
-              placeholder="Cole sua chave secreta..."
-              className="w-full bg-zinc-900/80 border border-zinc-800 rounded-xl py-3.5 px-4 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/40 transition-all font-mono text-sm"
-            />
-          </div>
-
-          {formError && (
-            <p className="text-sm text-red-400">{formError}</p>
-          )}
-
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3.5 rounded-xl transition-all duration-200 active:scale-[0.98] shadow-lg shadow-blue-600/20 mt-2 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {isSubmitting && <Loader2 size={18} className="animate-spin" />}
-            {isSubmitting ? 'Conectando...' : 'Conectar Corretora'}
-          </button>
-
-          <div className="flex items-start gap-2 p-3 bg-zinc-800/30 rounded-xl">
-            <ShieldCheck size={16} className="text-emerald-500 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-zinc-500 leading-relaxed">
-              Suas chaves são criptografadas com AES-256 e armazenadas de forma segura. Utilizamos apenas permissões de leitura — nunca movimentamos seus ativos.
-            </p>
-          </div>
+          </section>
         </div>
-      </section>
+
+        {/* ── Right Column: Connected List ── */}
+        <div className="lg:col-span-7 lg:order-2 order-1 space-y-4 animate-fade-in stagger-1">
+          <h2 className="text-[11px] font-bold text-[#6a6a72] uppercase tracking-widest pl-1 mb-2">Contas Ativas</h2>
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-4">
+              <Skeleton className="h-32 rounded-3xl" />
+              <Skeleton className="h-32 rounded-3xl" />
+            </div>
+          ) : connections.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-[#5a5a62] glass-card rounded-3xl border-dashed">
+              <Plug size={40} className="mb-4 text-[#3a3a42]" />
+              <p className="font-bold text-white font-[family-name:var(--font-outfit)]">Nenhuma integração</p>
+              <p className="text-sm text-[#6a6a72] mt-1 text-center max-w-xs">Sincronize sua primeira conta usando o formulário ao lado.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {connections.map((conn) => {
+                const isActive = conn.status === ConnectionStatusEnum.ACTIVE;
+                return (
+                  <div key={conn.id} className="glass-card rounded-3xl p-5 flex flex-col space-y-4 transition-all duration-200 hover:bg-[#1e1e22] relative overflow-hidden group">
+                    {/* Status side bar indicator */}
+                    <div className={`absolute left-0 top-0 bottom-0 w-1 ${isActive ? 'bg-positive' : 'bg-negative'}`} />
+
+                    <div className="flex items-start justify-between pl-2">
+                      <div className="flex items-center gap-4">
+                        <div className="h-12 w-12 rounded-2xl bg-[#111114] flex items-center justify-center text-white border border-[#2a2a2e]/60 shadow-inner group-hover:border-accent/20 transition-colors">
+                          <LinkIcon size={20} className={isActive ? 'text-accent' : 'text-[#6a6a72]'} />
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-white font-bold text-lg font-[family-name:var(--font-outfit)] group-hover:text-accent transition-colors">
+                            {conn.label || exchangeLabels[conn.type] || conn.type}
+                          </span>
+                          <span className="text-[11px] text-[#6a6a72] flex items-center gap-1.5 font-medium mt-0.5">
+                            <span className="uppercase text-[9px] tracking-wider bg-[#111114] px-1.5 py-0.5 rounded text-[#8a8a92]">Última Sync</span>
+                            <RefreshCw size={10} /> {formatDate(conn.last_synced_at)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <span className={`text-[10px] uppercase font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 border ${
+                        isActive
+                          ? 'bg-positive/[0.05] text-positive border-positive/10'
+                          : 'bg-negative/[0.05] text-negative border-negative/10'
+                      }`}>
+                        {isActive ? (
+                          <><Activity size={10} strokeWidth={3} /> Online</>
+                        ) : (
+                          <><AlertCircle size={10} strokeWidth={3} /> Erro</>
+                        )}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-3 border-t border-[#2a2a2e]/40 pl-2">
+                      <button
+                        onClick={() => handleSync(conn.id)}
+                        disabled={syncingId === conn.id}
+                        className="text-[13px] font-bold text-[#8a8a92] hover:text-white transition-colors flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {syncingId === conn.id ? (
+                          <Loader2 size={14} className="animate-spin text-accent" />
+                        ) : (
+                          <RefreshCw size={14} />
+                        )}
+                        Forçar Sincronização
+                      </button>
+                      <button
+                        onClick={() => handleDelete(conn.id)}
+                        disabled={deletingId === conn.id}
+                        className="text-[#6a6a72] hover:text-negative transition-colors p-2 rounded-xl hover:bg-negative/10 disabled:opacity-50"
+                        title="Remover conexão"
+                      >
+                        {deletingId === conn.id ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

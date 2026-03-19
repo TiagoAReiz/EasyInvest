@@ -11,7 +11,7 @@ export default function AppLayout({
       <div className="min-h-screen bg-background text-foreground">
         <BottomNav />
         {/* Content area: padding for bottom nav on mobile, margin for sidebar on desktop */}
-        <main className="pb-20 lg:pb-0 lg:ml-64">
+        <main className="pb-20 lg:pb-0 lg:ml-[220px]">
           {children}
         </main>
       </div>

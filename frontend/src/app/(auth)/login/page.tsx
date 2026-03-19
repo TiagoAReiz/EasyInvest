@@ -57,8 +57,8 @@ export default function LoginPage() {
 
   if (authLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-zinc-950">
-        <Loader2 size={32} className="animate-spin text-blue-500" />
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Loader2 size={32} className="animate-spin text-accent" />
       </div>
     );
   }
@@ -66,75 +66,88 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
 
-      {/* Left panel (desktop only) — branding */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-zinc-950 flex-col items-center justify-center p-12">
-        {/* Background gradient blobs */}
-        <div className="absolute top-1/4 -left-32 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-violet-600/8 rounded-full blur-3xl" />
+      {/* ── Left Panel — Cinematic Branding ── */}
+      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden bg-background flex-col items-center justify-center p-16 grain-overlay">
 
-        <div className="relative z-10 max-w-md space-y-8 animate-fade-in">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600/10 ring-1 ring-blue-500/20" style={{ animation: 'pulse-glow 3s ease-in-out infinite' }}>
-            <Wallet size={32} className="text-blue-500" />
+        {/* Abstract geometric shapes */}
+        <div className="absolute top-20 right-20 w-32 h-32 border border-accent/10 rounded-2xl rotate-12" style={{ animation: 'float 8s ease-in-out infinite' }} />
+        <div className="absolute bottom-32 left-16 w-20 h-20 border border-accent/8 rounded-full" style={{ animation: 'float 6s ease-in-out infinite 1s' }} />
+        <div className="absolute top-1/3 left-1/4 w-2 h-2 bg-accent/30 rounded-full" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }} />
+        <div className="absolute bottom-1/3 right-1/3 w-1.5 h-1.5 bg-accent/20 rounded-full" style={{ animation: 'float 7s ease-in-out infinite 2s' }} />
+
+        {/* Gradient glow blobs */}
+        <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-accent/[0.04] rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 -right-32 w-[400px] h-[400px] bg-accent/[0.03] rounded-full blur-[120px]" />
+
+        <div className="relative z-10 max-w-lg space-y-10 animate-fade-in">
+          {/* Logo mark */}
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 ring-1 ring-accent/25" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}>
+            <Wallet size={28} className="text-accent" />
           </div>
 
-          <div className="space-y-4">
-            <h1 className="text-4xl font-bold tracking-tight text-white leading-tight">
-              Todos os seus investimentos,{' '}
-              <span className="text-blue-500">um único lugar.</span>
+          {/* Hero text — big, bold, cinematic */}
+          <div className="space-y-5">
+            <h1 className="text-5xl xl:text-6xl font-extrabold tracking-tight text-white leading-[1.1] font-[family-name:var(--font-outfit)]">
+              <span className="animate-fade-in block">Todos os seus</span>
+              <span className="animate-fade-in stagger-1 block">investimentos,</span>
+              <span className="animate-fade-in stagger-2 block text-accent">um único lugar.</span>
             </h1>
-            <p className="text-lg text-zinc-400 leading-relaxed">
-              Ações, FIIs, criptomoedas e renda fixa consolidados em tempo real.
+            <p className="text-lg text-[#8a8a92] leading-relaxed max-w-md animate-fade-in stagger-3">
+              Ações, FIIs, criptomoedas e renda fixa consolidados com segurança e inteligência.
             </p>
           </div>
 
-          <div className="space-y-4 pt-4">
+          {/* Feature list */}
+          <div className="space-y-4 pt-2">
             {features.map((f, i) => (
-              <div key={i} className={`flex items-center gap-3 animate-fade-in stagger-${i + 1}`}>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-800/80 ring-1 ring-zinc-700/50">
-                  <f.icon size={18} className="text-zinc-300" />
+              <div key={i} className={`flex items-center gap-3.5 animate-fade-in stagger-${i + 4}`}>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1e1e22] ring-1 ring-[#2a2a2e]">
+                  <f.icon size={17} className="text-[#8a8a92]" />
                 </div>
-                <span className="text-sm text-zinc-300">{f.label}</span>
+                <span className="text-sm text-[#a0a0a8]">{f.label}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Right panel — login form */}
-      <div className="flex flex-1 flex-col items-center justify-center bg-zinc-950 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/50 via-zinc-950 to-black px-6 py-16 lg:bg-background lg:from-transparent lg:via-transparent lg:to-transparent">
+      {/* ── Right Panel — Login Form ── */}
+      <div className="flex flex-1 flex-col items-center justify-center bg-[#111114] px-6 py-16 lg:bg-[#111114] relative">
+        {/* Subtle radial glow on mobile */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/[0.03] rounded-full blur-[100px] lg:hidden" />
 
-        <div className="w-full max-w-sm flex flex-col items-center animate-fade-in">
+        <div className="w-full max-w-sm flex flex-col items-center relative z-10 animate-fade-in">
 
           {/* Logo (mobile) */}
-          <div className="lg:hidden flex h-20 w-20 items-center justify-center rounded-3xl bg-blue-600/10 ring-1 ring-blue-500/20 mb-8" style={{ animation: 'pulse-glow 3s ease-in-out infinite' }}>
-            <Wallet size={40} className="text-blue-500" />
+          <div className="lg:hidden flex h-20 w-20 items-center justify-center rounded-3xl bg-accent/10 ring-1 ring-accent/25 mb-8" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}>
+            <Wallet size={40} className="text-accent" />
           </div>
 
-          {/* Desktop subtitle */}
-          <div className="hidden lg:flex items-center gap-3 mb-10">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600/10 ring-1 ring-blue-500/20">
-              <Wallet size={20} className="text-blue-500" />
+          {/* Desktop logo inline */}
+          <div className="hidden lg:flex items-center gap-2.5 mb-12">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 ring-1 ring-accent/25">
+              <Wallet size={20} className="text-accent" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">
-              Easy<span className="text-blue-500">Invest</span>
+            <span className="text-xl font-bold tracking-tight text-white font-[family-name:var(--font-outfit)]">
+              Easy<span className="text-accent">Invest</span>
             </span>
           </div>
 
-          <h2 className="text-3xl lg:text-2xl font-bold tracking-tight text-white mb-3 text-center">
+          <h2 className="text-3xl lg:text-2xl font-bold tracking-tight text-white mb-3 text-center font-[family-name:var(--font-outfit)]">
             <span className="lg:hidden">Consolide seus investimentos</span>
             <span className="hidden lg:inline">Entrar na sua conta</span>
           </h2>
-          <p className="text-zinc-400 text-center text-base lg:text-sm mb-10 max-w-xs">
+          <p className="text-[#6a6a72] text-center text-base lg:text-sm mb-10 max-w-xs">
             <span className="lg:hidden">Acompanhe todos os seus ativos em um único lugar, de forma segura e inteligente.</span>
             <span className="hidden lg:inline">Use sua conta Google para acessar o painel.</span>
           </p>
 
-          {/* Sign in Button */}
+          {/* Google Sign In — vibrant yellow CTA */}
           <button
             ref={buttonRef}
             onClick={handleGoogleLogin}
             disabled={isLoggingIn}
-            className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-white px-8 py-4 font-semibold text-zinc-900 transition-all duration-200 hover:bg-zinc-100 hover:shadow-lg hover:shadow-white/5 active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
+            className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl btn-accent px-8 py-4 text-[15px] active:scale-[0.97] disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoggingIn ? (
               <Loader2 size={20} className="animate-spin" />
@@ -148,7 +161,7 @@ export default function LoginPage() {
                 </svg>
               </div>
             )}
-            <span>{isLoggingIn ? 'Entrando...' : 'Entrar com o Google'}</span>
+            <span className="font-bold">{isLoggingIn ? 'Entrando...' : 'Entrar com o Google'}</span>
             {!isLoggingIn && (
               <ArrowRight size={18} className="absolute right-6 opacity-0 -translate-x-4 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-100" />
             )}
@@ -158,7 +171,7 @@ export default function LoginPage() {
             <p className="mt-4 text-sm text-red-400 text-center">{error}</p>
           )}
 
-          <p className="mt-8 text-xs text-zinc-600 text-center max-w-xs">
+          <p className="mt-10 text-xs text-[#3a3a42] text-center max-w-xs leading-relaxed">
             Ao entrar, você concorda com nossos Termos de Serviço e Política de Privacidade.
           </p>
         </div>

@@ -12,9 +12,9 @@ const formatBRL = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
 const ALLOCATION_COLORS = {
-  variavel: '#3b82f6',
-  cripto: '#8b5cf6',
-  fixa: '#10b981',
+  variavel: '#f5c518', // Electric yellow
+  cripto: '#d4af37',   // Gold
+  fixa: '#34d399',     // Warm green
 };
 
 export default function DashboardPage() {
@@ -53,141 +53,108 @@ export default function DashboardPage() {
   const isEmpty = !summaryLoading && summary && summary.positions.length === 0;
 
   return (
-    <div className="flex flex-col px-4 pt-10 pb-8 lg:px-8 lg:pt-8 space-y-6 max-w-6xl mx-auto">
+    <div className="flex flex-col px-4 pt-8 pb-10 lg:px-8 lg:pt-10 space-y-6 max-w-7xl mx-auto">
 
-      {/* Header */}
-      <header className="animate-fade-in">
-        <p className="text-sm text-zinc-500 font-medium mb-1">Patrimônio Total</p>
-        <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4">
-          {summaryLoading ? (
-            <Skeleton className="h-12 w-64" />
-          ) : (
-            <h1 className="text-4xl lg:text-5xl font-bold tracking-tight text-white">
-              {formatBRL(totalEquity)}
-            </h1>
-          )}
+      {/* ── Header & Quick Actions ── */}
+      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 animate-fade-in">
+        <div>
+          <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-[family-name:var(--font-outfit)]">
+            Visão Geral
+          </h1>
+          <p className="text-sm text-[#8a8a92] mt-1">
+            Consolidado de todo o seu patrimônio.
+          </p>
+        </div>
+
+        {/* Floating Quick Actions (Pills) */}
+        <div className="flex items-center gap-3">
+          <Link
+            href="/connections"
+            className="flex items-center gap-2 bg-[#1e1e22] hover:bg-[#2a2a2e] text-white py-2.5 px-4 rounded-full font-medium transition-all duration-200 active:scale-[0.97] ring-1 ring-[#2a2a2e]/50 text-sm"
+          >
+            <LinkIcon size={16} className="text-[#8a8a92]" />
+            <span>Conectar</span>
+          </Link>
+          <Link
+            href="/add-position"
+            className="flex items-center gap-2 btn-accent py-2.5 px-5 rounded-full font-bold transition-all duration-200 text-sm"
+          >
+            <Plus size={16} />
+            <span>Adicionar</span>
+          </Link>
         </div>
       </header>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 animate-fade-in stagger-1">
-        <Link
-          href="/add-position"
-          className="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white py-3.5 px-4 rounded-xl font-medium transition-all duration-200 active:scale-[0.97] shadow-lg shadow-blue-600/20"
-        >
-          <Plus size={18} />
-          <span>Lançamento</span>
-        </Link>
-        <Link
-          href="/connections"
-          className="flex items-center justify-center gap-2 glass-card hover:bg-card-hover text-white py-3.5 px-4 rounded-xl font-medium transition-all duration-200 active:scale-[0.97]"
-        >
-          <LinkIcon size={18} />
-          <span>Conectar</span>
-        </Link>
-      </div>
-
       {isEmpty ? (
-        <div className="flex flex-col items-center justify-center py-20 text-zinc-500 animate-fade-in">
-          <PackageOpen size={48} className="mb-4 text-zinc-700" />
-          <p className="text-lg font-medium">Sua carteira está vazia</p>
-          <p className="text-sm text-zinc-600 mt-1 mb-6">Adicione seu primeiro investimento para começar.</p>
-          <Link
-            href="/add-position"
-            className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-medium transition-all"
-          >
-            Adicionar Investimento
-          </Link>
+        <div className="flex flex-col items-center justify-center py-20 text-[#5a5a62] animate-fade-in glass-card rounded-2xl">
+          <PackageOpen size={48} className="mb-4 text-[#3a3a42]" />
+          <p className="text-lg font-medium text-[#8a8a92]">Carteira vazia</p>
+          <p className="text-sm text-[#6a6a72] mt-1 mb-6">Conecte uma corretora ou adicione manualmente.</p>
+          <div className="flex gap-3">
+            <Link href="/add-position" className="btn-accent px-6 py-2.5 rounded-full font-bold transition-all text-sm">
+              Adicionar Manual
+            </Link>
+          </div>
         </div>
       ) : (
-        <>
-          {/* Main grid: Chart + Allocation side by side on desktop */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="flex flex-col gap-6">
 
-            {/* Evolution Chart (2 cols) */}
-            <section className="lg:col-span-2 glass-card rounded-2xl p-5 flex flex-col space-y-4 animate-fade-in stagger-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-zinc-300">Evolução Patrimonial</h3>
-                <div className="flex bg-zinc-800/80 rounded-lg p-0.5 ring-1 ring-zinc-700/50">
-                  {['7d', '30d', '90d', '1y'].map((f) => (
-                    <button
-                      key={f}
-                      onClick={() => setTimeFilter(f)}
-                      className={`text-xs font-medium px-3 py-1.5 rounded-md transition-all duration-200 ${
-                        timeFilter === f
-                          ? 'bg-zinc-700 text-white shadow-sm'
-                          : 'text-zinc-500 hover:text-zinc-300'
-                      }`}
-                    >
-                      {f}
-                    </button>
-                  ))}
+          {/* ── Bento Grid Top Row: Hero Equity + Allocation ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in stagger-1">
+            
+            {/* Hero Equity Card */}
+            <section className="lg:col-span-2 glass-card rounded-3xl p-8 lg:p-10 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-accent/[0.03] rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
+              
+              <div className="relative z-10">
+                <p className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider mb-2">
+                  Patrimônio Total
+                </p>
+                <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4">
+                  {summaryLoading ? (
+                    <Skeleton className="h-14 w-72" />
+                  ) : (
+                    <h2 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white font-[family-name:var(--font-outfit)]">
+                      {formatBRL(totalEquity)}
+                    </h2>
+                  )}
                 </div>
               </div>
 
-              <div className="h-52 lg:h-64 w-full">
-                {historyLoading ? (
-                  <Skeleton className="w-full h-full" />
-                ) : chartData.length > 0 ? (
+              {/* Decorative background lines */}
+              <div className="absolute bottom-0 right-0 left-0 h-24 opacity-20 pointer-events-none" style={{ maskImage: 'linear-gradient(to top, black, transparent)' }}>
+                {chartData.length > 0 && !historyLoading && (
                   <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 5, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.25} />
-                          <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: '#18181b',
-                          border: '1px solid #27272a',
-                          borderRadius: '12px',
-                          color: '#fff',
-                          fontSize: '13px',
-                          padding: '8px 12px',
-                        }}
-                        formatter={(value) => [formatBRL(Number(value)), 'Patrimônio']}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="value"
-                        stroke="#3b82f6"
-                        strokeWidth={2.5}
-                        fillOpacity={1}
-                        fill="url(#colorValue)"
-                      />
+                    <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
+                      <Area type="monotone" dataKey="value" stroke="none" fill="#f5c518" fillOpacity={1} />
                     </AreaChart>
                   </ResponsiveContainer>
-                ) : (
-                  <div className="flex items-center justify-center h-full text-zinc-600 text-sm">
-                    Sem dados para o período selecionado.
-                  </div>
                 )}
               </div>
             </section>
 
-            {/* Asset Allocation (1 col) */}
-            <section className="glass-card rounded-2xl p-5 flex flex-col space-y-5 animate-fade-in stagger-3">
-              <h3 className="text-sm font-semibold text-zinc-300">Alocação</h3>
+            {/* Asset Allocation Donut */}
+            <section className="glass-card rounded-3xl p-7 flex flex-col justify-between relative gold-top-accent">
+              <h3 className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider mb-6">Alocação</h3>
 
               {summaryLoading ? (
-                <div className="flex flex-col items-center gap-5">
-                  <Skeleton className="h-36 w-36 rounded-full" />
-                  <Skeleton className="h-20 w-full" />
+                <div className="flex flex-col items-center gap-5 my-auto">
+                  <Skeleton className="h-[120px] w-[120px] rounded-full" />
+                  <Skeleton className="h-16 w-full" />
                 </div>
               ) : allocation.length > 0 ? (
-                <div className="flex flex-col items-center gap-5">
-                  <div className="h-36 w-36 relative">
+                <div className="flex flex-col items-center gap-6 my-auto">
+                  <div className="h-[140px] w-[140px] relative">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={allocation}
                           cx="50%"
                           cy="50%"
-                          innerRadius={46}
-                          outerRadius={66}
+                          innerRadius={52}
+                          outerRadius={70}
                           stroke="none"
-                          paddingAngle={3}
+                          paddingAngle={4}
                           dataKey="value"
                         >
                           {allocation.map((entry, index) => (
@@ -198,49 +165,115 @@ export default function DashboardPage() {
                     </ResponsiveContainer>
                     {/* Center label */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xs text-zinc-500">Total</span>
-                      <span className="text-sm font-bold text-white">100%</span>
+                      <span className="text-[10px] text-[#6a6a72] font-semibold uppercase tracking-widest">Total</span>
                     </div>
                   </div>
 
                   <div className="flex flex-col space-y-3 w-full">
                     {allocation.map((item) => (
-                      <div key={item.name} className="flex items-center justify-between">
+                      <div key={item.name} className="flex items-center justify-between group cursor-default">
                         <div className="flex items-center gap-2.5">
-                          <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                          <span className="text-xs text-zinc-400">{item.name}</span>
+                          <span className="w-2.5 h-2.5 rounded-sm transition-transform group-hover:scale-125" style={{ backgroundColor: item.color }} />
+                          <span className="text-xs text-[#8a8a92] transition-colors group-hover:text-white">{item.name}</span>
                         </div>
-                        <span className="text-sm font-bold text-white">{item.value}%</span>
+                        <span className="text-sm font-bold text-white font-[family-name:var(--font-outfit)]">{item.value}%</span>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-36 text-zinc-600 text-sm">
-                  Sem dados de alocação.
+                <div className="flex items-center justify-center h-full text-[#5a5a62] text-sm">
+                  Sem dados.
                 </div>
               )}
             </section>
+
           </div>
 
-          {/* Top Performers */}
+          {/* ── Bento Grid Middle Row: Evolution Chart ── */}
+          <section className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col space-y-6 animate-fade-in stagger-2 relative gold-top-accent">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider">Evolução Patrimonial</h3>
+              <div className="flex bg-[#111114] rounded-lg p-1 ring-1 ring-[#2a2a2e]/50">
+                {['7d', '30d', '90d', '1y'].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setTimeFilter(f)}
+                    className={`text-xs font-bold px-4 py-1.5 rounded-md transition-all duration-200 ${
+                      timeFilter === f
+                        ? 'bg-accent text-[#0c0c0e] shadow-sm'
+                        : 'text-[#6a6a72] hover:text-white'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="h-64 lg:h-72 w-full">
+              {historyLoading ? (
+                <Skeleton className="w-full h-full rounded-xl" />
+              ) : chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorAccent" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#f5c518" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#f5c518" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#161619',
+                        border: '1px solid rgba(245, 197, 24, 0.2)',
+                        borderRadius: '12px',
+                        color: '#fff',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        padding: '10px 14px',
+                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+                      }}
+                      formatter={(value) => [formatBRL(Number(value)), 'Patrimônio']}
+                      labelStyle={{ color: '#8a8a92', marginBottom: '4px' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="#f5c518"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorAccent)"
+                      activeDot={{ r: 6, fill: '#f5c518', stroke: '#161619', strokeWidth: 3 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-[#5a5a62] text-sm">
+                  Sem dados para o período selecionado.
+                </div>
+              )}
+            </div>
+          </section>
+
+          {/* ── Bento Grid Bottom Row: Top Performers ── */}
           {topPerformers.length > 0 && (
-            <section className="glass-card rounded-2xl p-5 animate-fade-in stagger-4">
-              <h3 className="text-sm font-semibold text-zinc-300 mb-4">Destaques da Carteira</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <section className="glass-card rounded-3xl p-6 lg:p-8 animate-fade-in stagger-3 relative gold-top-accent">
+              <h3 className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider mb-6">Destaques da Carteira</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {topPerformers.map((asset) => (
                   <div
                     key={asset.ticker}
-                    className="flex items-center justify-between bg-zinc-800/40 hover:bg-zinc-800/60 rounded-xl px-4 py-3 transition-colors"
+                    className="flex items-center justify-between bg-[#111114] hover:bg-[#1e1e22] rounded-2xl px-5 py-4 transition-colors border border-[#2a2a2e]/40 group"
                   >
                     <div className="flex flex-col">
-                      <span className="text-white font-bold text-sm">{asset.ticker}</span>
-                      <span className="text-[11px] text-zinc-500">{asset.name}</span>
+                      <span className="text-white font-bold text-sm font-[family-name:var(--font-outfit)]">{asset.ticker}</span>
+                      <span className="text-[11px] text-[#6a6a72] max-w-[100px] truncate">{asset.name}</span>
                     </div>
                     <span className={`flex items-center gap-1 text-sm font-bold ${
-                      asset.change >= 0 ? 'text-emerald-400' : 'text-red-400'
+                      asset.change >= 0 ? 'text-positive' : 'text-negative'
                     }`}>
-                      {asset.change >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
+                      {asset.change >= 0 ? <ArrowUpRight size={16} strokeWidth={2.5} /> : <ArrowDownRight size={16} strokeWidth={2.5} />}
                       {Math.abs(asset.change).toFixed(1)}%
                     </span>
                   </div>
@@ -248,7 +281,8 @@ export default function DashboardPage() {
               </div>
             </section>
           )}
-        </>
+
+        </div>
       )}
     </div>
   );

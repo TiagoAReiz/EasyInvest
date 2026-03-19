@@ -21,10 +21,10 @@ export default function AssetSearchDropdown({ results, isSearching, onSelect }: 
   if (!isSearching && results.length === 0) return null;
 
   return (
-    <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-xl shadow-black/40">
+    <div className="absolute z-20 top-full left-0 right-0 mt-1.5 bg-[#161619] border border-[#2a2a2e] rounded-xl overflow-hidden shadow-2xl shadow-black/60">
       {isSearching ? (
-        <div className="flex items-center justify-center gap-2 py-4 text-zinc-500 text-sm">
-          <Loader2 size={16} className="animate-spin" />
+        <div className="flex items-center justify-center gap-2 py-5 text-[#8a8a92] text-sm">
+          <Loader2 size={16} className="animate-spin text-accent" />
           Buscando...
         </div>
       ) : (
@@ -34,13 +34,13 @@ export default function AssetSearchDropdown({ results, isSearching, onSelect }: 
               <button
                 type="button"
                 onClick={() => onSelect(asset)}
-                className="w-full px-4 py-3 flex items-center justify-between hover:bg-zinc-800/60 transition-colors text-left"
+                className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent/[0.05] transition-colors text-left border-b border-[#2a2a2e]/30 last:border-0"
               >
                 <div className="flex flex-col">
                   <span className="text-white font-semibold text-sm">{asset.ticker}</span>
-                  <span className="text-xs text-zinc-500 truncate">{asset.name}</span>
+                  <span className="text-xs text-[#6a6a72] truncate">{asset.name}</span>
                 </div>
-                <span className="text-[10px] font-medium text-zinc-500 bg-zinc-800 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-semibold text-accent/70 bg-accent/[0.06] px-2 py-0.5 rounded-md">
                   {assetTypeLabels[asset.type]}
                 </span>
               </button>
