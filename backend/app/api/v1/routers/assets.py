@@ -9,6 +9,7 @@ from app.core.deps import get_current_user
 from app.db.models import Asset, AssetQuote, User
 from app.db.session import get_db
 from app.schemas.asset import AssetQuoteResponse, AssetResponse
+from app.services.brapi import get_or_create_asset, search_brapi
 
 router = APIRouter()
 
@@ -26,15 +27,35 @@ def search_assets(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Busca ativos no catálogo por ticker ou nome."""
+    """Busca ativos no catálogo local e na brapi.dev."""
     pattern = f"%{q.upper()}%"
-    results = (
+
+    # 1. Busca no banco local primeiro
+    local_results = (
         db.query(Asset)
         .filter(Asset.ticker.ilike(pattern) | Asset.name.ilike(pattern))
         .limit(20)
         .all()
     )
-    return results
+
+    # 2. Se poucos resultados locais, busca na brapi.dev e cria no banco
+    if len(local_results) < 5:
+        brapi_results = search_brapi(q)
+        local_tickers = {a.ticker for a in local_results}
+
+        for item in brapi_results:
+            if item["ticker"] not in local_tickers:
+                try:
+                    asset = get_or_create_asset(db, item["ticker"])
+                    local_results.append(asset)
+                    local_tickers.add(asset.ticker)
+                except Exception:
+                    continue  # Se falhar um, continua pros outros
+
+                if len(local_results) >= 20:
+                    break
+
+    return local_results
 
 
 @router.get("/{asset_id}/quotes", response_model=list[AssetQuoteResponse])
