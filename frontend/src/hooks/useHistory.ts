@@ -16,7 +16,11 @@ export function useHistory(period: string = '30d') {
 
     getHistory(period)
       .then((data) => {
-        if (!cancelled) setHistory(data);
+        if (!cancelled) {
+          // Ordena por data ASC para o gráfico
+          const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
+          setHistory(sorted);
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(err instanceof Error ? err.message : 'Erro ao carregar histórico');
