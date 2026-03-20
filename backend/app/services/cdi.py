@@ -52,6 +52,15 @@ def get_cdi_annual_rate() -> float:
     return CDI_FALLBACK_ANNUAL
 
 
+def _count_full_months(start: date, end: date) -> int:
+    """Conta meses completos entre duas datas."""
+    months = (end.year - start.year) * 12 + (end.month - start.month)
+    # Se o dia atual ainda não atingiu o dia de início, desconta 1 mês
+    if end.day < start.day:
+        months -= 1
+    return max(months, 0)
+
+
 def calculate_fixed_income_value(
     invested_amount: float,
     rate_type: str,
@@ -61,41 +70,41 @@ def calculate_fixed_income_value(
 ) -> float:
     """Calcula o valor atual de um investimento de renda fixa.
 
-    Suporta:
-    - CDI_PERCENTAGE: ex. 110% do CDI → rendimento = CDI * 1.10
-    - CDI_PLUS: ex. CDI + 2% → rendimento = CDI + 2
-    - PREFIXED: ex. 13% a.a. fixo
-    - IPCA_PLUS: ex. IPCA + 6% (usa CDI como proxy simplificado)
+    Juros compostos mês a mês desde investment_date até hoje:
+    1. Converte taxa anual efetiva → taxa mensal: (1 + anual)^(1/12) - 1
+    2. Acumula mês a mês: valor = principal * (1 + mensal)^meses
 
-    Fórmula: valor = principal * (1 + taxa_efetiva_anual/100) ^ (dias/365)
+    Suporta:
+    - CDI_PERCENTAGE: ex. 110% do CDI → taxa_anual = CDI * 1.10
+    - CDI_PLUS: ex. CDI + 2% → taxa_anual = CDI + 2
+    - PREFIXED: ex. 13% a.a. fixo
+    - IPCA_PLUS: ex. IPCA + 6% (usa estimativa de 4.5% para IPCA)
     """
     if today is None:
         today = date.today()
 
-    days = (today - investment_date).days
-    if days <= 0:
+    months = _count_full_months(investment_date, today)
+    if months <= 0:
         return invested_amount
 
     cdi_annual = get_cdi_annual_rate()
 
     if rate_type == "CDI_PERCENTAGE":
-        # Ex: 110% do CDI → taxa = CDI * 1.10
         effective_annual = cdi_annual * (rate_value / 100)
     elif rate_type == "CDI_PLUS":
-        # Ex: CDI + 2% → taxa = CDI + 2
         effective_annual = cdi_annual + rate_value
     elif rate_type == "PREFIXED":
-        # Taxa fixa informada
         effective_annual = rate_value
     elif rate_type == "IPCA_PLUS":
-        # Simplificação: usa CDI como proxy do IPCA + spread
-        # Em produção, buscaria IPCA real do BCB
-        effective_annual = rate_value + 4.5  # IPCA estimado ~4.5%
+        effective_annual = rate_value + 4.5
     else:
         effective_annual = cdi_annual
 
-    # Juros compostos: V = P * (1 + r)^(d/365)
-    current_value = invested_amount * ((1 + effective_annual / 100) ** (days / 365))
+    # Taxa mensal a partir da anual (juros compostos)
+    monthly_rate = (1 + effective_annual / 100) ** (1 / 12) - 1
+
+    # Valor acumulado: principal compondo mês a mês
+    current_value = invested_amount * ((1 + monthly_rate) ** months)
 
     return round(current_value, 2)
 
