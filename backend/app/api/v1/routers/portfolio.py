@@ -6,7 +6,10 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
-from app.db.models import Asset, AssetQuote, AssetTypeEnum, PortfolioPosition, PositionHistory, User
+from app.db.models import (
+    Asset, AssetQuote, AssetTypeEnum, PortfolioPosition,
+    PositionHistory, PositionTransaction, TransactionTypeEnum, User,
+)
 from app.db.session import get_db
 from app.schemas.portfolio import (
     PortfolioSummary,
@@ -265,6 +268,18 @@ def portfolio_summary(
     )
 
 
+def _snapshot_after_mutation(db: Session, user_id: UUID) -> None:
+    """Recalcula e salva snapshot do patrimônio após uma mutação de posição."""
+    positions = (
+        db.query(PortfolioPosition)
+        .filter(PortfolioPosition.user_id == user_id)
+        .all()
+    )
+    prices = _get_fresh_prices(db, positions)
+    enriched = [_enrich_position(p, prices.get(p.asset_id)) for p in positions]
+    _save_daily_snapshot(db, user_id, enriched)
+
+
 @router.post("/position", response_model=PositionResponse, status_code=201)
 def create_position(
     body: PositionCreate,
@@ -284,8 +299,22 @@ def create_position(
         **body.model_dump(),
     )
     db.add(position)
+    db.flush()
+
+    # Registra transação de compra inicial
+    db.add(PositionTransaction(
+        position_id=position.id,
+        user_id=current_user.id,
+        type=TransactionTypeEnum.BUY,
+        quantity=float(position.quantity),
+        price=float(position.average_price),
+        date=position.investment_date or datetime.now(timezone.utc).date(),
+    ))
+
     db.commit()
     db.refresh(position)
+
+    _snapshot_after_mutation(db, current_user.id)
     return position
 
 
@@ -311,12 +340,39 @@ def update_position(
             detail="Posição não encontrada",
         )
 
+    # Salva valores anteriores para o log
+    old_quantity = float(position.quantity)
+    old_price = float(position.average_price)
+
     update_data = body.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(position, field, value)
 
+    # Registra transação de atualização com os valores NOVOS
+    new_quantity = float(position.quantity)
+    new_price = float(position.average_price)
+    qty_diff = new_quantity - old_quantity
+
+    tx_type = TransactionTypeEnum.UPDATE
+    if qty_diff > 0:
+        tx_type = TransactionTypeEnum.BUY
+    elif qty_diff < 0:
+        tx_type = TransactionTypeEnum.SELL
+
+    db.add(PositionTransaction(
+        position_id=position.id,
+        user_id=current_user.id,
+        type=tx_type,
+        quantity=abs(qty_diff) if qty_diff != 0 else new_quantity,
+        price=new_price,
+        date=datetime.now(timezone.utc).date(),
+        notes=f"Anterior: {old_quantity} x R${old_price:.2f}" if tx_type != TransactionTypeEnum.UPDATE else None,
+    ))
+
     db.commit()
     db.refresh(position)
+
+    _snapshot_after_mutation(db, current_user.id)
     return position
 
 
@@ -341,5 +397,20 @@ def delete_position(
             detail="Posição não encontrada",
         )
 
+    user_id = position.user_id
+
+    # Registra venda total antes de excluir
+    db.add(PositionTransaction(
+        position_id=position.id,
+        user_id=current_user.id,
+        type=TransactionTypeEnum.SELL,
+        quantity=float(position.quantity),
+        price=float(position.average_price),
+        date=datetime.now(timezone.utc).date(),
+        notes="Posição encerrada",
+    ))
+
     db.delete(position)
     db.commit()
+
+    _snapshot_after_mutation(db, user_id)

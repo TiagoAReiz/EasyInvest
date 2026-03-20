@@ -151,7 +151,35 @@ def get_quotes_batch(tickers: list[str]) -> dict[str, dict]:
                 _quote_cache[ticker_key] = (time.time(), quote_data)
 
         except Exception as e:
-            logger.error(f"Erro ao buscar cotações em batch na brapi.dev: {e}")
+            logger.warning(f"Batch quote falhou ({joined}): {e} — tentando individualmente")
+            # Fallback: busca cada ticker individualmente para não perder
+            # cotações válidas por causa de um ticker inválido no lote
+            for single_ticker in batch:
+                if single_ticker in result:
+                    continue
+                try:
+                    with httpx.Client(timeout=10) as client:
+                        resp = client.get(
+                            f"{BRAPI_QUOTE_URL}/{single_ticker}",
+                            params=_brapi_params(),
+                        )
+                        resp.raise_for_status()
+                        data = resp.json()
+
+                    for item in data.get("results", []):
+                        ticker_key = item.get("symbol", "").upper()
+                        if not ticker_key:
+                            continue
+                        quote_data = {
+                            "price": item.get("regularMarketPrice"),
+                            "longName": item.get("longName"),
+                            "shortName": item.get("shortName"),
+                        }
+                        result[ticker_key] = quote_data
+                        _quote_cache[ticker_key] = (time.time(), quote_data)
+
+                except Exception as inner_e:
+                    logger.warning(f"Ticker inválido ou indisponível: {single_ticker} — {inner_e}")
 
     return result
 

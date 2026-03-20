@@ -60,6 +60,12 @@ class RateTypeEnum(str, enum.Enum):
     IPCA_PLUS = "IPCA_PLUS"
 
 
+class TransactionTypeEnum(str, enum.Enum):
+    BUY = "BUY"
+    SELL = "SELL"
+    UPDATE = "UPDATE"
+
+
 # ---------- Models ----------
 
 class User(Base):
@@ -206,6 +212,40 @@ class PortfolioPosition(Base):
     # Relationships
     user: Mapped["User"] = relationship(back_populates="positions")
     asset: Mapped["Asset"] = relationship(back_populates="positions")
+    transactions: Mapped[list["PositionTransaction"]] = relationship(
+        back_populates="position", cascade="all, delete-orphan"
+    )
+
+
+class PositionTransaction(Base):
+    """Log de movimentações de cada posição — nunca perde dados originais."""
+    __tablename__ = "position_transactions"
+    __table_args__ = (
+        Index("ix_position_transactions_position", "position_id"),
+        Index("ix_position_transactions_user_date", "user_id", "date"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=uuid.uuid4
+    )
+    position_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("portfolio_positions.id", ondelete="CASCADE")
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE")
+    )
+    type: Mapped[TransactionTypeEnum] = mapped_column(Enum(TransactionTypeEnum))
+    quantity: Mapped[float] = mapped_column(Numeric(18, 8))
+    price: Mapped[float] = mapped_column(Numeric(18, 8))
+    date: Mapped[date] = mapped_column(Date)
+    notes: Mapped[str | None] = mapped_column(String, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    # Relationships
+    position: Mapped["PortfolioPosition"] = relationship(back_populates="transactions")
+    user: Mapped["User"] = relationship()
 
 
 class PositionHistory(Base):

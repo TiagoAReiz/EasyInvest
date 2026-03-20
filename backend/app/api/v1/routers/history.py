@@ -66,22 +66,58 @@ def _generate_history(
     if (today - start_date).days > 365:
         start_date = today - timedelta(days=365)
 
-    # Coleta preço atual de cada ativo de renda variável/crypto
-    # (simplificação MVP: assume preço constante no período)
-    current_prices: dict[str, float] = {}
+    # Coleta cotações históricas de cada ativo de renda variável/crypto
+    # Organiza por asset_id -> lista de (date, price) ordenada por data
+    from sqlalchemy import asc, desc
+
+    asset_ids = set()
     for pos in positions:
-        asset = pos.asset
-        if asset.type in (AssetTypeEnum.STOCK, AssetTypeEnum.FII, AssetTypeEnum.CRYPTO):
-            if asset.id not in current_prices:
-                from sqlalchemy import desc
-                quote = (
-                    db.query(AssetQuote)
-                    .filter(AssetQuote.asset_id == asset.id)
-                    .order_by(desc(AssetQuote.fetched_at))
-                    .first()
-                )
-                if quote:
-                    current_prices[str(asset.id)] = float(quote.price)
+        if pos.asset.type in (AssetTypeEnum.STOCK, AssetTypeEnum.FII, AssetTypeEnum.CRYPTO):
+            asset_ids.add(pos.asset_id)
+
+    # Busca todas as cotações no período para esses ativos
+    historical_quotes: dict[str, list[tuple[date, float]]] = {}
+    fallback_prices: dict[str, float] = {}
+
+    for aid in asset_ids:
+        quotes = (
+            db.query(AssetQuote)
+            .filter(
+                AssetQuote.asset_id == aid,
+                AssetQuote.fetched_at >= datetime(start_date.year, start_date.month, start_date.day, tzinfo=timezone.utc),
+            )
+            .order_by(asc(AssetQuote.fetched_at))
+            .all()
+        )
+        # Agrupa por data (pega o último preço de cada dia)
+        by_day: dict[date, float] = {}
+        for q in quotes:
+            by_day[q.fetched_at.date()] = float(q.price)
+        historical_quotes[str(aid)] = sorted(by_day.items())
+
+        # Fallback: última cotação conhecida (qualquer data)
+        latest = (
+            db.query(AssetQuote)
+            .filter(AssetQuote.asset_id == aid)
+            .order_by(desc(AssetQuote.fetched_at))
+            .first()
+        )
+        if latest:
+            fallback_prices[str(aid)] = float(latest.price)
+
+    def _get_price_for_date(asset_id_str: str, target_date: date, avg_price: float) -> float:
+        """Retorna o preço mais próximo (<=) da data alvo para o ativo."""
+        day_quotes = historical_quotes.get(asset_id_str, [])
+        best = None
+        for d, p in day_quotes:
+            if d <= target_date:
+                best = p
+            else:
+                break
+        if best is not None:
+            return best
+        # Sem cotação histórica antes dessa data: usa fallback
+        return fallback_prices.get(asset_id_str, avg_price)
 
     # Gera pontos dia a dia
     entries: list[HistoryEntry] = []
@@ -119,15 +155,15 @@ def _generate_history(
                 fi_eq += value
 
             elif asset.type == AssetTypeEnum.STOCK:
-                price = current_prices.get(str(asset.id), avg_price)
+                price = _get_price_for_date(str(asset.id), current_date, avg_price)
                 stock_eq += quantity * price
 
             elif asset.type == AssetTypeEnum.FII:
-                price = current_prices.get(str(asset.id), avg_price)
+                price = _get_price_for_date(str(asset.id), current_date, avg_price)
                 fii_eq += quantity * price
 
             elif asset.type == AssetTypeEnum.CRYPTO:
-                price = current_prices.get(str(asset.id), avg_price)
+                price = _get_price_for_date(str(asset.id), current_date, avg_price)
                 crypto_eq += quantity * price
 
         total = stock_eq + fii_eq + crypto_eq + fi_eq
