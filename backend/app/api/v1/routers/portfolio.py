@@ -16,6 +16,7 @@ from app.schemas.portfolio import (
     PositionWithQuote,
 )
 from app.services.brapi import refresh_quotes_for_assets
+from app.services.cdi import calculate_fixed_income_value
 
 router = APIRouter()
 
@@ -87,8 +88,22 @@ def _enrich_position(pos: PortfolioPosition, current_price: float | None) -> Pos
 
     quantity = float(pos.quantity)
     avg_price = float(pos.average_price)
+    invested = float(pos.invested_amount) if pos.invested_amount else None
+    rate_val = float(pos.rate_value) if pos.rate_value else None
 
-    if current_price is not None:
+    # Renda fixa: calcula rendimento por tempo (CDI)
+    if asset.type == AssetTypeEnum.FIXED_INCOME and invested and rate_val and pos.investment_date:
+        current_value = calculate_fixed_income_value(
+            invested_amount=invested,
+            rate_type=pos.rate_type.value if pos.rate_type else "CDI_PERCENTAGE",
+            rate_value=rate_val,
+            investment_date=pos.investment_date,
+        )
+        profit_loss = current_value - invested
+        # current_price não se aplica a renda fixa, mas preenchemos
+        # com o valor atual para manter compatibilidade
+        current_price = current_value
+    elif current_price is not None:
         current_value = quantity * current_price
         profit_loss = current_value - (quantity * avg_price)
     else:
@@ -104,10 +119,10 @@ def _enrich_position(pos: PortfolioPosition, current_price: float | None) -> Pos
         origin=pos.origin,
         institution_name=pos.institution_name,
         rate_type=pos.rate_type,
-        rate_value=float(pos.rate_value) if pos.rate_value else None,
+        rate_value=rate_val,
         investment_date=pos.investment_date,
         maturity_date=pos.maturity_date,
-        invested_amount=float(pos.invested_amount) if pos.invested_amount else None,
+        invested_amount=invested,
         created_at=pos.created_at,
         updated_at=pos.updated_at,
         ticker=asset.ticker,

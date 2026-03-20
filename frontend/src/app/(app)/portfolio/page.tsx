@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, TrendingUp, TrendingDown, PackageOpen, LayoutGrid, List } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, PackageOpen, Calendar } from 'lucide-react';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { AssetTypeEnum } from '@/lib/types';
 import Skeleton from '@/components/Skeleton';
@@ -94,13 +94,23 @@ export default function PortfolioPage() {
 
       {/* Desktop Table Header */}
       {!isLoading && filteredPositions.length > 0 && (
-        <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-6 text-[11px] font-bold text-[#6a6a72] uppercase tracking-widest pt-2">
-          <span className="col-span-4">Ativo</span>
-          <span className="col-span-2 text-right">Quantidade</span>
-          <span className="col-span-2 text-right">Preço Médio</span>
-          <span className="col-span-2 text-right">Preço Atual</span>
-          <span className="col-span-2 text-right">Rentabilidade</span>
-        </div>
+        activeTab === 'fixa' ? (
+          <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-6 text-[11px] font-bold text-[#6a6a72] uppercase tracking-widest pt-2">
+            <span className="col-span-3">Titulo</span>
+            <span className="col-span-2 text-right">Investido</span>
+            <span className="col-span-2 text-right">Taxa</span>
+            <span className="col-span-2 text-right">Valor Atual</span>
+            <span className="col-span-3 text-right">Rendimento</span>
+          </div>
+        ) : (
+          <div className="hidden lg:grid lg:grid-cols-12 gap-4 px-6 text-[11px] font-bold text-[#6a6a72] uppercase tracking-widest pt-2">
+            <span className="col-span-4">Ativo</span>
+            <span className="col-span-2 text-right">Quantidade</span>
+            <span className="col-span-2 text-right">Preco Medio</span>
+            <span className="col-span-2 text-right">Preco Atual</span>
+            <span className="col-span-2 text-right">Rentabilidade</span>
+          </div>
+        )
       )}
 
       {/* Loading */}
@@ -114,6 +124,113 @@ export default function PortfolioPage() {
         /* ── Assets List (Cards format) ── */
         <div className="flex flex-col gap-3">
           {filteredPositions.map((pos, i) => {
+            const isFixedIncome = pos.asset_type === AssetTypeEnum.FIXED_INCOME;
+
+            if (isFixedIncome) {
+              // ── Renda Fixa card ──
+              const invested = pos.invested_amount ?? 0;
+              const currentVal = pos.current_value ?? invested;
+              const profit = pos.profit_loss ?? 0;
+              const profitPct = invested > 0 ? (profit / invested) * 100 : 0;
+              const isPositive = profit >= 0;
+
+              const rateLabel = pos.rate_type === 'CDI_PERCENTAGE'
+                ? `${pos.rate_value}% CDI`
+                : pos.rate_type === 'CDI_PLUS'
+                ? `CDI + ${pos.rate_value}%`
+                : pos.rate_type === 'PREFIXED'
+                ? `${pos.rate_value}% a.a.`
+                : pos.rate_type === 'IPCA_PLUS'
+                ? `IPCA + ${pos.rate_value}%`
+                : '—';
+
+              const formatDate = (d: string | null) =>
+                d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+
+              return (
+                <div
+                  key={pos.id}
+                  className={`glass-card rounded-2xl p-5 lg:px-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 cursor-pointer animate-fade-in stagger-${Math.min(i + 2, 6)} group relative overflow-hidden`}
+                >
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-accent/[0.02] rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                  {/* Mobile layout - Renda Fixa */}
+                  <div className="flex flex-col gap-3 lg:hidden relative z-10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-white font-bold font-[family-name:var(--font-outfit)] truncate max-w-[200px]">{pos.asset_name}</span>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-[10px] text-accent/70 font-semibold bg-accent/[0.06] px-1.5 py-0.5 rounded">
+                            {rateLabel}
+                          </span>
+                          {pos.institution_name && (
+                            <span className="text-[10px] text-[#6a6a72]">{pos.institution_name}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end shrink-0">
+                        <span className="text-sm text-white font-bold font-[family-name:var(--font-outfit)]">
+                          {formatCurrency(currentVal)}
+                        </span>
+                        <span className={`text-xs font-bold flex items-center gap-0.5 mt-0.5 ${
+                          isPositive ? 'text-positive' : 'text-negative'
+                        }`}>
+                          {isPositive ? <TrendingUp size={12} strokeWidth={2.5} /> : <TrendingDown size={12} strokeWidth={2.5} />}
+                          {isPositive ? '+' : ''}{formatCurrency(profit)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[11px] text-[#6a6a72] border-t border-[#2a2a2e]/40 pt-2">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={10} /> {formatDate(pos.investment_date)} → {formatDate(pos.maturity_date)}
+                      </span>
+                      <span>Investido: {formatCurrency(invested)}</span>
+                    </div>
+                  </div>
+
+                  {/* Desktop layout - Renda Fixa */}
+                  <div className="hidden lg:grid lg:grid-cols-12 gap-4 items-center relative z-10">
+                    <div className="col-span-3 flex flex-col">
+                      <span className="text-white font-bold text-base font-[family-name:var(--font-outfit)] truncate max-w-[250px]">{pos.asset_name}</span>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {pos.institution_name && (
+                          <span className="text-[11px] text-[#6a6a72]">{pos.institution_name}</span>
+                        )}
+                        <span className="text-[11px] text-[#5a5a62] flex items-center gap-1">
+                          <Calendar size={10} /> {formatDate(pos.investment_date)} → {formatDate(pos.maturity_date)}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="col-span-2 text-right text-sm text-[#8a8a92]">{formatCurrency(invested)}</span>
+                    <div className="col-span-2 text-right">
+                      <span className="inline-block text-accent/80 font-semibold bg-accent/[0.06] px-2.5 py-1 rounded text-xs">
+                        {rateLabel}
+                      </span>
+                    </div>
+                    <span className="col-span-2 text-right text-[15px] text-white font-bold font-[family-name:var(--font-outfit)]">
+                      {formatCurrency(currentVal)}
+                    </span>
+                    <div className="col-span-3 flex flex-col items-end justify-center">
+                      <span className={`text-[15px] font-bold flex items-center gap-1 ${
+                        isPositive ? 'text-positive' : 'text-negative'
+                      }`}>
+                        {isPositive ? <TrendingUp size={14} strokeWidth={2.5} /> : <TrendingDown size={14} strokeWidth={2.5} />}
+                        {isPositive ? '+' : ''}{profitPct.toFixed(2)}%
+                      </span>
+                      <span className={`text-[11px] font-medium mt-0.5 ${
+                        isPositive ? 'text-positive/60' : 'text-negative/60'
+                      }`}>
+                        {isPositive ? '+' : ''}{formatCurrency(profit)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            // ── Renda Variável / Cripto card (original) ──
             const profitPct = pos.average_price > 0 && pos.current_price
               ? ((pos.current_price - pos.average_price) / pos.average_price) * 100
               : 0;
@@ -193,9 +310,9 @@ export default function PortfolioPage() {
               <PackageOpen size={48} className="mb-4 text-[#3a3a42]" />
               <p className="font-bold text-lg text-[#8a8a92]">Nenhum ativo listado.</p>
               <p className="text-sm text-[#6a6a72] mt-1 max-w-xs text-center">
-                {searchQuery 
-                  ? "Não encontramos resultados para sua busca atual." 
-                  : "Sua carteira nesta categoria está vazia. Adicione novas posições para vê-las aqui."}
+                {searchQuery
+                  ? "Nao encontramos resultados para sua busca atual."
+                  : "Sua carteira nesta categoria esta vazia. Adicione novas posicoes para ve-las aqui."}
               </p>
             </div>
           )}
