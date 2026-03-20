@@ -33,7 +33,9 @@
       "Bash(npx tsc:*)",
       "Bash(py -m pytest tests/ -q)",
       "Bash(cat:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(python3 -c \"from app.api.v1.routers.portfolio import router; from app.api.v1.routers.history import router; print\\(''OK''\\)\")",
+      "Bash(py -c \"from app.api.v1.routers.portfolio import router; from app.api.v1.routers.history import router; print\\(''OK''\\)\")"
     ]
   }
 }

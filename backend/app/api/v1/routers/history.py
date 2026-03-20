@@ -153,35 +153,63 @@ def read_history(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Retorna dados para o gráfico de evolução patrimonial."""
-    # Primeiro tenta dados salvos no PositionHistory
-    saved = db.query(PositionHistory).filter(
-        PositionHistory.user_id == current_user.id
-    ).first()
+    """Retorna dados para o gráfico de evolução patrimonial.
 
-    if saved:
-        # Tem histórico salvo, usa ele
-        query = db.query(PositionHistory).filter(
-            PositionHistory.user_id == current_user.id
-        )
-        if period != "all":
-            days = PERIOD_MAP.get(period, 30)
-            since = datetime.now(timezone.utc) - timedelta(days=days)
-            query = query.filter(PositionHistory.date >= since.date())
-
-        from sqlalchemy import desc
-        results = query.order_by(desc(PositionHistory.date)).all()
-        return [
-            HistoryEntry(
-                date=r.date,
-                total_equity=float(r.total_equity),
-                stock_equity=float(r.stock_equity),
-                crypto_equity=float(r.crypto_equity),
-                fixed_income_equity=float(r.fixed_income_equity),
-            )
-            for r in results
-        ]
-
-    # Sem histórico salvo: gera dinamicamente
+    Combina snapshots salvos (PositionHistory) com cálculo on-the-fly
+    para datas que ainda não têm snapshot, dando prioridade aos dados reais.
+    """
     period_days = PERIOD_MAP.get(period) if period != "all" else None
+
+    today = date.today()
+    if period_days is not None:
+        start_date = today - timedelta(days=period_days)
+    else:
+        positions = (
+            db.query(PortfolioPosition)
+            .filter(PortfolioPosition.user_id == current_user.id)
+            .all()
+        )
+        if not positions:
+            return []
+        earliest = min(p.created_at.date() for p in positions)
+        start_date = earliest
+        if (today - start_date).days > 365:
+            start_date = today - timedelta(days=365)
+
+    # Busca snapshots salvos no período
+    from sqlalchemy import asc
+    saved_rows = (
+        db.query(PositionHistory)
+        .filter(
+            PositionHistory.user_id == current_user.id,
+            PositionHistory.date >= start_date,
+        )
+        .order_by(asc(PositionHistory.date))
+        .all()
+    )
+
+    saved_map = {
+        r.date: HistoryEntry(
+            date=r.date,
+            total_equity=float(r.total_equity),
+            stock_equity=float(r.stock_equity),
+            crypto_equity=float(r.crypto_equity),
+            fixed_income_equity=float(r.fixed_income_equity),
+        )
+        for r in saved_rows
+    }
+
+    # Se temos snapshots para todas as datas, retorna direto
+    if saved_map:
+        # Gera on-the-fly apenas para datas sem snapshot
+        generated = _generate_history(db, current_user.id, period_days)
+        generated_map = {e.date: e for e in generated}
+
+        # Merge: snapshot real sobrescreve o gerado
+        generated_map.update(saved_map)
+
+        result = sorted(generated_map.values(), key=lambda e: e.date)
+        return result
+
+    # Sem nenhum snapshot salvo: gera tudo dinamicamente
     return _generate_history(db, current_user.id, period_days)

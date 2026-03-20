@@ -6,7 +6,7 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user
-from app.db.models import Asset, AssetQuote, AssetTypeEnum, PortfolioPosition, User
+from app.db.models import Asset, AssetQuote, AssetTypeEnum, PortfolioPosition, PositionHistory, User
 from app.db.session import get_db
 from app.schemas.portfolio import (
     PortfolioSummary,
@@ -134,6 +134,54 @@ def _enrich_position(pos: PortfolioPosition, current_price: float | None) -> Pos
     )
 
 
+def _save_daily_snapshot(db: Session, user_id: UUID, enriched: list[PositionWithQuote]) -> None:
+    """Salva (ou atualiza) o snapshot diário do patrimônio na PositionHistory.
+
+    Chamado toda vez que enriquecemos posições com preços frescos,
+    garantindo que temos ao menos um ponto por dia por usuário.
+    """
+    today = datetime.now(timezone.utc).date()
+
+    totals = {"stock": 0.0, "fii": 0.0, "crypto": 0.0, "fixed_income": 0.0}
+    for p in enriched:
+        value = p.current_value or 0.0
+        if p.asset_type == AssetTypeEnum.STOCK:
+            totals["stock"] += value
+        elif p.asset_type == AssetTypeEnum.FII:
+            totals["stock"] += value  # stock_equity inclui FII no PositionHistory
+        elif p.asset_type == AssetTypeEnum.CRYPTO:
+            totals["crypto"] += value
+        elif p.asset_type == AssetTypeEnum.FIXED_INCOME:
+            totals["fixed_income"] += value
+
+    total_equity = sum(totals.values())
+    if total_equity == 0:
+        return
+
+    existing = (
+        db.query(PositionHistory)
+        .filter(PositionHistory.user_id == user_id, PositionHistory.date == today)
+        .first()
+    )
+
+    if existing:
+        existing.total_equity = total_equity
+        existing.stock_equity = totals["stock"]
+        existing.crypto_equity = totals["crypto"]
+        existing.fixed_income_equity = totals["fixed_income"]
+    else:
+        db.add(PositionHistory(
+            user_id=user_id,
+            date=today,
+            total_equity=total_equity,
+            stock_equity=totals["stock"],
+            crypto_equity=totals["crypto"],
+            fixed_income_equity=totals["fixed_income"],
+        ))
+
+    db.commit()
+
+
 @router.get("", response_model=list[PositionWithQuote])
 def read_portfolio(
     current_user: User = Depends(get_current_user),
@@ -149,10 +197,15 @@ def read_portfolio(
     # Busca todos os preços em batch (1-2 requests max)
     prices = _get_fresh_prices(db, positions)
 
-    return [
+    enriched = [
         _enrich_position(p, prices.get(p.asset_id))
         for p in positions
     ]
+
+    # Salva snapshot diário do patrimônio
+    _save_daily_snapshot(db, current_user.id, enriched)
+
+    return enriched
 
 
 @router.get("/summary", response_model=PortfolioSummary)
@@ -174,6 +227,9 @@ def portfolio_summary(
         _enrich_position(p, prices.get(p.asset_id))
         for p in positions
     ]
+
+    # Salva snapshot diário do patrimônio
+    _save_daily_snapshot(db, current_user.id, enriched)
 
     totals = {
         "stock": 0.0,
