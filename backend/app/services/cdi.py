@@ -38,10 +38,12 @@ def get_cdi_annual_rate() -> float:
             data = resp.json()
 
         if data and len(data) > 0:
-            # O BCB retorna a taxa diária, mas a série 12 já é a taxa anualizada
-            rate = float(data[0]["valor"])
-            _cdi_cache = (time.time(), rate)
-            return rate
+            # A série 12 do BCB retorna a taxa CDI DIÁRIA (ex: 0.0538%)
+            # Precisamos anualizar: (1 + diária/100)^252 - 1
+            daily_rate = float(data[0]["valor"])
+            annual_rate = ((1 + daily_rate / 100) ** 252 - 1) * 100
+            _cdi_cache = (time.time(), annual_rate)
+            return annual_rate
 
     except Exception as e:
         logger.error(f"Erro ao buscar taxa CDI do BCB: {e}")

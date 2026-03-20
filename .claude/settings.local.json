@@ -30,7 +30,8 @@
       "Bash(xargs cat:*)",
       "Bash(python -m pytest tests/ -v)",
       "Bash(py -m pytest tests/ -v)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(py -m pytest tests/ -q)"
     ]
   }
 }
