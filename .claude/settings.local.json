@@ -31,7 +31,9 @@
       "Bash(python -m pytest tests/ -v)",
       "Bash(py -m pytest tests/ -v)",
       "Bash(npx tsc:*)",
-      "Bash(py -m pytest tests/ -q)"
+      "Bash(py -m pytest tests/ -q)",
+      "Bash(cat:*)",
+      "Bash(ls:*)"
     ]
   }
 }

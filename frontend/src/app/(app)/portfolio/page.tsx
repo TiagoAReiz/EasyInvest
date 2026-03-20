@@ -4,7 +4,10 @@ import { useState } from 'react';
 import { Search, TrendingUp, TrendingDown, PackageOpen, Calendar } from 'lucide-react';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { AssetTypeEnum } from '@/lib/types';
+import type { PositionWithQuote, PositionUpdateRequest } from '@/lib/types';
+import { updatePosition, deletePosition } from '@/services/portfolioService';
 import Skeleton from '@/components/Skeleton';
+import EditPositionModal from '@/components/EditPositionModal';
 
 type TabType = 'variavel' | 'cripto' | 'fixa';
 
@@ -24,9 +27,22 @@ const formatCurrency = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
 export default function PortfolioPage() {
-  const { positions, isLoading, error } = usePortfolio();
+  const { positions, isLoading, error, refetch } = usePortfolio();
   const [activeTab, setActiveTab] = useState<TabType>('variavel');
   const [searchQuery, setSearchQuery] = useState('');
+  const [editingPosition, setEditingPosition] = useState<PositionWithQuote | null>(null);
+
+  const handleSave = async (id: string, data: PositionUpdateRequest) => {
+    await updatePosition(id, data);
+    setEditingPosition(null);
+    refetch();
+  };
+
+  const handleDelete = async (id: string) => {
+    await deletePosition(id);
+    setEditingPosition(null);
+    refetch();
+  };
 
   const filteredPositions = positions
     .filter((p) => tabAssetTypes[activeTab].includes(p.asset_type))
@@ -150,6 +166,7 @@ export default function PortfolioPage() {
               return (
                 <div
                   key={pos.id}
+                  onClick={() => setEditingPosition(pos)}
                   className={`glass-card rounded-2xl p-5 lg:px-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 cursor-pointer animate-fade-in stagger-${Math.min(i + 2, 6)} group relative overflow-hidden`}
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-accent/[0.02] rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -240,6 +257,7 @@ export default function PortfolioPage() {
             return (
               <div
                 key={pos.id}
+                onClick={() => setEditingPosition(pos)}
                 className={`glass-card rounded-2xl p-5 lg:px-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/50 cursor-pointer animate-fade-in stagger-${Math.min(i + 2, 6)} group relative overflow-hidden`}
               >
                 {/* Accent glow on hover */}
@@ -317,6 +335,16 @@ export default function PortfolioPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Edit Position Modal */}
+      {editingPosition && (
+        <EditPositionModal
+          position={editingPosition}
+          onClose={() => setEditingPosition(null)}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
       )}
     </div>
   );

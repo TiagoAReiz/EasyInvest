@@ -33,7 +33,7 @@ export default function AssetSearchDropdown({ results, isSearching, onSelect }: 
             <li key={asset.id}>
               <button
                 type="button"
-                onClick={() => onSelect(asset)}
+                onMouseDown={(e) => { e.preventDefault(); onSelect(asset); }}
                 className="w-full px-4 py-3 flex items-center justify-between hover:bg-accent/[0.05] transition-colors text-left border-b border-[#2a2a2e]/30 last:border-0"
               >
                 <div className="flex flex-col">
