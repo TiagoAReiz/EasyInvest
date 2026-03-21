@@ -91,7 +91,7 @@ def create_checkout(
     """Cria preferência de checkout no Mercado Pago."""
     # Determinar URLs de callback
     origin = request.headers.get("origin", "http://localhost:3000")
-    base_url = str(request.base_url).rstrip("/")
+    base_url = settings.BACKEND_PUBLIC_URL or str(request.base_url).rstrip("/")
     notification_url = f"{base_url}/api/v1/subscription/webhook"
 
     try:
