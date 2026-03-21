@@ -7,7 +7,7 @@ from app.db.models import AssetTypeEnum, OriginEnum, RateTypeEnum
 
 
 class PositionCreate(BaseModel):
-    asset_id: UUID
+    asset_id: UUID 
     quantity: float
     average_price: float
     origin: OriginEnum = OriginEnum.MANUAL
