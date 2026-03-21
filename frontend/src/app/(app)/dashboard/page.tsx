@@ -12,9 +12,9 @@ const formatBRL = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
 const ALLOCATION_COLORS = {
-  variavel: '#f5c518', // Electric yellow
-  cripto: '#d4af37',   // Gold
-  fixa: '#34d399',     // Warm green
+  variavel: '#f5c518',
+  cripto: '#d4af37',
+  fixa: '#34d399',
 };
 
 export default function DashboardPage() {
@@ -27,7 +27,6 @@ export default function DashboardPage() {
     value: h.total_equity,
   }));
 
-  // Allocation calculation
   const totalEquity = summary?.total_equity || 0;
   const allocation = totalEquity > 0 ? [
     { name: 'Renda Variável', value: Math.round(((summary!.stock_equity + summary!.fii_equity) / totalEquity) * 100), color: ALLOCATION_COLORS.variavel },
@@ -35,7 +34,6 @@ export default function DashboardPage() {
     { name: 'Renda Fixa', value: Math.round((summary!.fixed_income_equity / totalEquity) * 100), color: ALLOCATION_COLORS.fixa },
   ] : [];
 
-  // Top performers (sorted by profit_loss, top 4)
   const topPerformers = summary
     ? [...summary.positions]
         .filter((p) => p.profit_loss !== null)
@@ -58,21 +56,20 @@ export default function DashboardPage() {
       {/* ── Header & Quick Actions ── */}
       <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 animate-fade-in">
         <div>
-          <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-[family-name:var(--font-outfit)]">
+          <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-foreground font-[family-name:var(--font-outfit)]">
             Visão Geral
           </h1>
-          <p className="text-sm text-[#8a8a92] mt-1">
+          <p className="text-sm text-muted mt-1">
             Consolidado de todo o seu patrimônio.
           </p>
         </div>
 
-        {/* Floating Quick Actions (Pills) */}
         <div className="flex items-center gap-3">
           <Link
             href="/connections"
-            className="flex items-center gap-2 bg-[#1e1e22] hover:bg-[#2a2a2e] text-white py-2.5 px-4 rounded-full font-medium transition-all duration-200 active:scale-[0.97] ring-1 ring-[#2a2a2e]/50 text-sm"
+            className="flex items-center gap-2 bg-card-hover hover:bg-border text-foreground py-2.5 px-4 rounded-full font-medium transition-all duration-200 active:scale-[0.97] ring-1 ring-border/50 text-sm"
           >
-            <LinkIcon size={16} className="text-[#8a8a92]" />
+            <LinkIcon size={16} className="text-muted" />
             <span>Conectar</span>
           </Link>
           <Link
@@ -86,10 +83,10 @@ export default function DashboardPage() {
       </header>
 
       {isEmpty ? (
-        <div className="flex flex-col items-center justify-center py-20 text-[#5a5a62] animate-fade-in glass-card rounded-2xl">
-          <PackageOpen size={48} className="mb-4 text-[#3a3a42]" />
-          <p className="text-lg font-medium text-[#8a8a92]">Carteira vazia</p>
-          <p className="text-sm text-[#6a6a72] mt-1 mb-6">Conecte uma corretora ou adicione manualmente.</p>
+        <div className="flex flex-col items-center justify-center py-20 text-muted-tertiary animate-fade-in glass-card rounded-2xl">
+          <PackageOpen size={48} className="mb-4 text-border-hover" />
+          <p className="text-lg font-medium text-muted">Carteira vazia</p>
+          <p className="text-sm text-muted-secondary mt-1 mb-6">Conecte uma corretora ou adicione manualmente.</p>
           <div className="flex gap-3">
             <Link href="/add-position" className="btn-accent px-6 py-2.5 rounded-full font-bold transition-all text-sm">
               Adicionar Manual
@@ -101,20 +98,20 @@ export default function DashboardPage() {
 
           {/* ── Bento Grid Top Row: Hero Equity + Allocation ── */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fade-in stagger-1">
-            
+
             {/* Hero Equity Card */}
             <section className="lg:col-span-2 glass-card rounded-3xl p-8 lg:p-10 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-accent/[0.03] rounded-full blur-[80px] -translate-y-1/2 translate-x-1/3" />
-              
+
               <div className="relative z-10">
-                <p className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider mb-2">
+                <p className="text-sm font-semibold text-muted uppercase tracking-wider mb-2">
                   Patrimônio Total
                 </p>
                 <div className="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-4">
                   {summaryLoading ? (
                     <Skeleton className="h-14 w-72" />
                   ) : (
-                    <h2 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-white font-[family-name:var(--font-outfit)]">
+                    <h2 className="text-5xl lg:text-7xl font-extrabold tracking-tight text-foreground font-[family-name:var(--font-outfit)]">
                       {formatBRL(totalEquity)}
                     </h2>
                   )}
@@ -126,7 +123,7 @@ export default function DashboardPage() {
                 {chartData.length > 0 && !historyLoading && (
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData} margin={{ top: 0, right: 0, left: 0, bottom: 0 }}>
-                      <Area type="monotone" dataKey="value" stroke="none" fill="#f5c518" fillOpacity={1} />
+                      <Area type="monotone" dataKey="value" stroke="none" fill="var(--accent)" fillOpacity={1} />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
@@ -135,7 +132,7 @@ export default function DashboardPage() {
 
             {/* Asset Allocation Donut */}
             <section className="glass-card rounded-3xl p-7 flex flex-col justify-between relative gold-top-accent">
-              <h3 className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider mb-6">Alocação</h3>
+              <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-6">Alocação</h3>
 
               {summaryLoading ? (
                 <div className="flex flex-col items-center gap-5 my-auto">
@@ -163,9 +160,8 @@ export default function DashboardPage() {
                         </Pie>
                       </PieChart>
                     </ResponsiveContainer>
-                    {/* Center label */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-[10px] text-[#6a6a72] font-semibold uppercase tracking-widest">Total</span>
+                      <span className="text-[10px] text-muted-secondary font-semibold uppercase tracking-widest">Total</span>
                     </div>
                   </div>
 
@@ -174,15 +170,15 @@ export default function DashboardPage() {
                       <div key={item.name} className="flex items-center justify-between group cursor-default">
                         <div className="flex items-center gap-2.5">
                           <span className="w-2.5 h-2.5 rounded-sm transition-transform group-hover:scale-125" style={{ backgroundColor: item.color }} />
-                          <span className="text-xs text-[#8a8a92] transition-colors group-hover:text-white">{item.name}</span>
+                          <span className="text-xs text-muted transition-colors group-hover:text-foreground">{item.name}</span>
                         </div>
-                        <span className="text-sm font-bold text-white font-[family-name:var(--font-outfit)]">{item.value}%</span>
+                        <span className="text-sm font-bold text-foreground font-[family-name:var(--font-outfit)]">{item.value}%</span>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full text-[#5a5a62] text-sm">
+                <div className="flex items-center justify-center h-full text-muted-tertiary text-sm">
                   Sem dados.
                 </div>
               )}
@@ -193,16 +189,16 @@ export default function DashboardPage() {
           {/* ── Bento Grid Middle Row: Evolution Chart ── */}
           <section className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col space-y-6 animate-fade-in stagger-2 relative gold-top-accent">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider">Evolução Patrimonial</h3>
-              <div className="flex bg-[#111114] rounded-lg p-1 ring-1 ring-[#2a2a2e]/50">
+              <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Evolução Patrimonial</h3>
+              <div className="flex bg-surface rounded-lg p-1 ring-1 ring-border/50">
                 {['7d', '30d', '90d', '1y'].map((f) => (
                   <button
                     key={f}
                     onClick={() => setTimeFilter(f)}
                     className={`text-xs font-bold px-4 py-1.5 rounded-md transition-all duration-200 ${
                       timeFilter === f
-                        ? 'bg-accent text-[#0c0c0e] shadow-sm'
-                        : 'text-[#6a6a72] hover:text-white'
+                        ? 'bg-accent text-background shadow-sm'
+                        : 'text-muted-secondary hover:text-foreground'
                     }`}
                   >
                     {f}
@@ -219,37 +215,37 @@ export default function DashboardPage() {
                   <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorAccent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#f5c518" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="#f5c518" stopOpacity={0} />
+                        <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: '#161619',
-                        border: '1px solid rgba(245, 197, 24, 0.2)',
+                        backgroundColor: 'var(--card)',
+                        border: '1px solid var(--accent-glow)',
                         borderRadius: '12px',
-                        color: '#fff',
+                        color: 'var(--foreground)',
                         fontSize: '13px',
                         fontWeight: '600',
                         padding: '10px 14px',
-                        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+                        boxShadow: '0 10px 25px -5px var(--shadow-color)',
                       }}
                       formatter={(value) => [formatBRL(Number(value)), 'Patrimônio']}
-                      labelStyle={{ color: '#8a8a92', marginBottom: '4px' }}
+                      labelStyle={{ color: 'var(--muted)', marginBottom: '4px' }}
                     />
                     <Area
                       type="monotone"
                       dataKey="value"
-                      stroke="#f5c518"
+                      stroke="var(--accent)"
                       strokeWidth={3}
                       fillOpacity={1}
                       fill="url(#colorAccent)"
-                      activeDot={{ r: 6, fill: '#f5c518', stroke: '#161619', strokeWidth: 3 }}
+                      activeDot={{ r: 6, fill: 'var(--accent)', stroke: 'var(--card)', strokeWidth: 3 }}
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="flex items-center justify-center h-full text-[#5a5a62] text-sm">
+                <div className="flex items-center justify-center h-full text-muted-tertiary text-sm">
                   Sem dados para o período selecionado.
                 </div>
               )}
@@ -259,16 +255,16 @@ export default function DashboardPage() {
           {/* ── Bento Grid Bottom Row: Top Performers ── */}
           {topPerformers.length > 0 && (
             <section className="glass-card rounded-3xl p-6 lg:p-8 animate-fade-in stagger-3 relative gold-top-accent">
-              <h3 className="text-sm font-semibold text-[#8a8a92] uppercase tracking-wider mb-6">Destaques da Carteira</h3>
+              <h3 className="text-sm font-semibold text-muted uppercase tracking-wider mb-6">Destaques da Carteira</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {topPerformers.map((asset) => (
                   <div
                     key={asset.ticker}
-                    className="flex items-center justify-between bg-[#111114] hover:bg-[#1e1e22] rounded-2xl px-5 py-4 transition-colors border border-[#2a2a2e]/40 group"
+                    className="flex items-center justify-between bg-surface hover:bg-card-hover rounded-2xl px-5 py-4 transition-colors border border-border/40 group"
                   >
                     <div className="flex flex-col">
-                      <span className="text-white font-bold text-sm font-[family-name:var(--font-outfit)]">{asset.ticker}</span>
-                      <span className="text-[11px] text-[#6a6a72] max-w-[100px] truncate">{asset.name}</span>
+                      <span className="text-foreground font-bold text-sm font-[family-name:var(--font-outfit)]">{asset.ticker}</span>
+                      <span className="text-[11px] text-muted-secondary max-w-[100px] truncate">{asset.name}</span>
                     </div>
                     <span className={`flex items-center gap-1 text-sm font-bold ${
                       asset.change >= 0 ? 'text-positive' : 'text-negative'

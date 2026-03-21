@@ -37,7 +37,16 @@
       "Bash(python3 -c \"from app.api.v1.routers.portfolio import router; from app.api.v1.routers.history import router; print\\(''OK''\\)\")",
       "Bash(py -c \"from app.api.v1.routers.portfolio import router; from app.api.v1.routers.history import router; print\\(''OK''\\)\")",
       "Bash(py -c \"from app.services.brapi import get_quotes_batch; print\\(''OK''\\)\")",
-      "mcp__mercadopago__search_documentation"
+      "mcp__mercadopago__search_documentation",
+      "Bash(find 'C:/Users/tiago/Desktop/WorkPlace/Projeto Day/frontend' -maxdepth 2 -name next.config.* -o -name tailwind.config.*)",
+      "Bash(python -c \"from app.db.models import UserSettings, Notification, NotificationTypeEnum; from app.schemas.settings import UserSettingsResponse, UserSettingsUpdate; from app.schemas.notification import NotificationResponse, NotificationCreate; print\\(''All imports OK''\\)\")",
+      "Bash(python3 -c \"from app.db.models import UserSettings, Notification, NotificationTypeEnum; print\\(''OK''\\)\")",
+      "Bash(py -c \"from app.db.models import UserSettings, Notification, NotificationTypeEnum; print\\(''OK''\\)\")",
+      "Bash(py -c \"from app.api.v1.routers.settings import router; from app.api.v1.routers.notifications import router; from app.services.notifications import create_notification; from app.core.deps import get_current_user; print\\(''All router imports OK''\\)\")",
+      "Bash(py -c \"from app.api.v1.api import api_router; print\\(''API router OK, routes:'', len\\(api_router.routes\\)\\)\")",
+      "Bash(docker-compose restart:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(docker-compose logs:*)"
     ]
   }
 }

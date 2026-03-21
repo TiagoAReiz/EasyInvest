@@ -31,6 +31,14 @@ def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Usuário não encontrado",
         )
+
+    token_version = payload.get("tv", 0)
+    if token_version != user.token_version:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Sessão revogada. Faça login novamente.",
+        )
+
     return user
 
 

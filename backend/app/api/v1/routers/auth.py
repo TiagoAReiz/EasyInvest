@@ -57,3 +57,15 @@ def refresh(body: RefreshRequest, db: Session = Depends(get_db)):
 def me(current_user: User = Depends(get_current_user)):
     """Retorna dados do usuário logado."""
     return current_user
+
+
+@router.post("/revoke-sessions", response_model=TokenResponse)
+def revoke_sessions(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Incrementa token_version, invalidando todos os tokens antigos. Retorna novos tokens."""
+    current_user.token_version += 1
+    db.commit()
+    db.refresh(current_user)
+    return generate_tokens(current_user)

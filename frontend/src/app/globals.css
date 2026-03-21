@@ -1,12 +1,20 @@
 @import "tailwindcss";
 
-:root {
+/* ── Dark Theme (default) ── */
+:root,
+.dark {
   --background: #0c0c0e;
   --foreground: #f0f0f0;
   --card: #161619;
   --card-hover: #1e1e22;
   --border: #2a2a2e;
+  --border-hover: #3a3a42;
   --muted: #8a8a92;
+  --muted-secondary: #6a6a72;
+  --muted-tertiary: #5a5a62;
+  --muted-faint: #4a4a52;
+  --muted-light: #c0c0c8;
+  --muted-medium: #a0a0a8;
   --accent: #f5c518;
   --accent-hover: #e6b800;
   --accent-soft: rgba(245, 197, 24, 0.08);
@@ -14,6 +22,39 @@
   --positive: #34d399;
   --negative: #f87171;
   --surface: #111114;
+  --overlay: rgba(0, 0, 0, 0.70);
+  --shadow-color: rgba(0, 0, 0, 0.50);
+  --glass-bg: linear-gradient(135deg, rgba(22, 22, 25, 0.9), rgba(22, 22, 25, 0.5));
+  --glass-border: rgba(42, 42, 46, 0.6);
+  --color-scheme: dark;
+}
+
+/* ── Light Theme ── */
+.light {
+  --background: #f5f5f7;
+  --foreground: #1a1a1d;
+  --card: #ffffff;
+  --card-hover: #f0f0f2;
+  --border: #e0e0e4;
+  --border-hover: #c8c8ce;
+  --muted: #6b6b73;
+  --muted-secondary: #8a8a92;
+  --muted-tertiary: #9a9aa2;
+  --muted-faint: #b0b0b8;
+  --muted-light: #4a4a52;
+  --muted-medium: #5a5a62;
+  --accent: #d4a900;
+  --accent-hover: #b89200;
+  --accent-soft: rgba(212, 169, 0, 0.10);
+  --accent-glow: rgba(212, 169, 0, 0.18);
+  --positive: #16a34a;
+  --negative: #dc2626;
+  --surface: #eaeaee;
+  --overlay: rgba(0, 0, 0, 0.30);
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.6));
+  --glass-border: rgba(224, 224, 228, 0.8);
+  --color-scheme: light;
 }
 
 @theme inline {
@@ -22,7 +63,13 @@
   --color-card: var(--card);
   --color-card-hover: var(--card-hover);
   --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
   --color-muted: var(--muted);
+  --color-muted-secondary: var(--muted-secondary);
+  --color-muted-tertiary: var(--muted-tertiary);
+  --color-muted-faint: var(--muted-faint);
+  --color-muted-light: var(--muted-light);
+  --color-muted-medium: var(--muted-medium);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-soft: var(--accent-soft);
@@ -30,6 +77,8 @@
   --color-positive: var(--positive);
   --color-negative: var(--negative);
   --color-surface: var(--surface);
+  --color-overlay: var(--overlay);
+  --color-shadow: var(--shadow-color);
   --font-display: var(--font-outfit);
   --font-body: var(--font-dm-sans);
 }
@@ -38,6 +87,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), system-ui, -apple-system, sans-serif;
+  color-scheme: var(--color-scheme);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -53,11 +103,11 @@ h1, h2, h3, h4, h5, h6 {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a2e;
+  background: var(--border);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: var(--border-hover);
 }
 
 /* === Animations === */
@@ -134,14 +184,18 @@ h1, h2, h3, h4, h5, h6 {
 
 /* === Glass Card === */
 .glass-card {
-  background: linear-gradient(135deg, rgba(22, 22, 25, 0.9), rgba(22, 22, 25, 0.5));
+  background: var(--glass-bg);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(42, 42, 46, 0.6);
+  border: 1px solid var(--glass-border);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card:hover {
   border-color: rgba(245, 197, 24, 0.12);
+}
+
+.light .glass-card:hover {
+  border-color: rgba(212, 169, 0, 0.25);
 }
 
 /* === Gold Top Accent === */
@@ -162,15 +216,15 @@ h1, h2, h3, h4, h5, h6 {
 
 /* === Accent Gradient Button === */
 .btn-accent {
-  background: linear-gradient(135deg, #f5c518, #e6a800);
-  color: #0c0c0e;
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  color: var(--background);
   font-weight: 700;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 24px -4px rgba(245, 197, 24, 0.25);
+  box-shadow: 0 4px 24px -4px var(--accent-glow);
 }
 .btn-accent:hover {
-  background: linear-gradient(135deg, #ffd54f, #f5c518);
-  box-shadow: 0 6px 32px -4px rgba(245, 197, 24, 0.35);
+  filter: brightness(1.1);
+  box-shadow: 0 6px 32px -4px var(--accent-glow);
   transform: translateY(-1px);
 }
 .btn-accent:active {
@@ -203,7 +257,7 @@ h1, h2, h3, h4, h5, h6 {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* === Input Focus Yellow === */
+/* === Input Focus === */
 input:focus, select:focus, textarea:focus {
   outline: none;
 }

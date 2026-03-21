@@ -39,7 +39,7 @@ def upsert_user(db: Session, google_claims: dict) -> User:
 def generate_tokens(user: User) -> dict:
     """Gera par access_token + refresh_token para o usuário."""
     return {
-        "access_token": create_access_token(user.id, user.plan.value),
+        "access_token": create_access_token(user.id, user.plan.value, user.token_version),
         "refresh_token": create_refresh_token(user.id),
         "token_type": "bearer",
     }

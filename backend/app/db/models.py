@@ -3,11 +3,13 @@ import uuid
 from datetime import date, datetime
 
 from sqlalchemy import (
+    Boolean,
     Date,
     DateTime,
     Enum,
     ForeignKey,
     Index,
+    Integer,
     Numeric,
     String,
     Uuid,
@@ -95,6 +97,8 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
+    token_version: Mapped[int] = mapped_column(default=0)
+
     # Relationships
     connections: Mapped[list["WalletConnection"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
@@ -106,6 +110,12 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
     subscriptions: Mapped[list["Subscription"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    settings: Mapped["UserSettings | None"] = relationship(
+        back_populates="user", uselist=False, cascade="all, delete-orphan"
+    )
+    notifications: Mapped[list["Notification"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 
@@ -304,3 +314,56 @@ class Subscription(Base):
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="subscriptions")
+
+
+class NotificationTypeEnum(str, enum.Enum):
+    PRICE = "PRICE"
+    SYNC = "SYNC"
+    DIVIDEND = "DIVIDEND"
+    MATURITY = "MATURITY"
+
+
+class UserSettings(Base):
+    __tablename__ = "user_settings"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE"), unique=True
+    )
+    theme: Mapped[str] = mapped_column(String, default="dark")
+    notif_price_alerts: Mapped[bool] = mapped_column(Boolean, default=True)
+    notif_dividends: Mapped[bool] = mapped_column(Boolean, default=True)
+    notif_sync: Mapped[bool] = mapped_column(Boolean, default=False)
+    notif_maturity: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    # Relationships
+    user: Mapped["User"] = relationship(back_populates="settings")
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE")
+    )
+    type: Mapped[NotificationTypeEnum] = mapped_column(Enum(NotificationTypeEnum))
+    title: Mapped[str] = mapped_column(String)
+    body: Mapped[str] = mapped_column(String)
+    read: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    # Relationships
+    user: Mapped["User"] = relationship(back_populates="notifications")

@@ -18,7 +18,6 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     }
   }, [isLoading, isAuthenticated, router]);
 
-  // Redirecionar FREE para /plans quando paywall está ativo
   const isPlansRoute = pathname?.startsWith('/plans');
   useEffect(() => {
     if (!isLoading && !subLoading && isAuthenticated && paywallEnabled) {
@@ -31,7 +30,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
   if (isLoading || subLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 size={32} className="animate-spin text-blue-500" />
+        <Loader2 size={32} className="animate-spin text-accent" />
       </div>
     );
   }

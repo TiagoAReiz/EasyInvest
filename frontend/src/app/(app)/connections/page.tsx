@@ -68,7 +68,7 @@ export default function ConnectionsPage() {
     try {
       await removeConnection(id);
     } catch {
-      // silently fail, connection stays in list
+      // silently fail
     } finally {
       setDeletingId(null);
     }
@@ -90,8 +90,8 @@ export default function ConnectionsPage() {
 
       {/* ── Header ── */}
       <header className="animate-fade-in">
-        <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-[family-name:var(--font-outfit)]">Conexões</h1>
-        <p className="text-sm text-[#8a8a92] mt-1">Integre suas contas e deixe o robô fazer o resto.</p>
+        <h1 className="text-2xl lg:text-3xl font-extrabold tracking-tight text-foreground font-[family-name:var(--font-outfit)]">Conexões</h1>
+        <p className="text-sm text-muted mt-1">Integre suas contas e deixe o robô fazer o resto.</p>
       </header>
 
       {/* Error Banner */}
@@ -108,63 +108,63 @@ export default function ConnectionsPage() {
         <div className="lg:col-span-5 lg:order-1 order-2 w-full animate-fade-in stagger-2">
           <section className="glass-card rounded-3xl p-7 lg:p-8 space-y-7 relative gold-top-accent">
             <div className="flex items-center gap-3 mb-2">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#111114] border border-[#2a2a2e]/60 shadow-inner">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-surface border border-border/60 shadow-inner">
                 <LinkIcon size={20} className="text-accent" />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-white font-[family-name:var(--font-outfit)]">Nova Corretora</h2>
-                <p className="text-[12px] font-medium text-[#6a6a72]">Sincronização Read-Only</p>
+                <h2 className="text-xl font-bold text-foreground font-[family-name:var(--font-outfit)]">Nova Corretora</h2>
+                <p className="text-[12px] font-medium text-muted-secondary">Sincronização Read-Only</p>
               </div>
             </div>
 
             <div className="space-y-5">
               <div className="space-y-2">
-                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">Instituição</label>
+                <label className="text-[13px] font-bold text-muted uppercase tracking-wider pl-0.5">Instituição</label>
                 <div className="relative group">
                   <select
                     value={formType}
                     onChange={(e) => setFormType(e.target.value)}
-                    className="w-full appearance-none bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-white text-sm focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all hover:border-[#3a3a42]"
+                    className="w-full appearance-none bg-surface border border-border/80 rounded-2xl py-3.5 px-4 text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all hover:border-border-hover"
                   >
                     <option value="">Selecione uma opção...</option>
                     {exchangeOptions.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
                   </select>
-                  <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#6a6a72] pointer-events-none group-hover:text-[#8a8a92] transition-colors" />
+                  <ChevronDown size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-secondary pointer-events-none group-hover:text-muted transition-colors" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">Nome Customizado</label>
+                <label className="text-[13px] font-bold text-muted uppercase tracking-wider pl-0.5">Nome Customizado</label>
                 <input
                   type="text"
                   value={formLabel}
                   onChange={(e) => setFormLabel(e.target.value)}
                   placeholder="Ex: Binance Secundária"
-                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-white text-sm placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all hover:border-[#3a3a42]"
+                  className="w-full bg-surface border border-border/80 rounded-2xl py-3.5 px-4 text-foreground text-sm placeholder:text-muted-tertiary focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all hover:border-border-hover"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">API Key (Pública)</label>
+                <label className="text-[13px] font-bold text-muted uppercase tracking-wider pl-0.5">API Key (Pública)</label>
                 <input
                   type="text"
                   value={formApiKey}
                   onChange={(e) => setFormApiKey(e.target.value)}
                   placeholder="Cole aqui..."
-                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-accent text-sm placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all font-mono tracking-tight"
+                  className="w-full bg-surface border border-border/80 rounded-2xl py-3.5 px-4 text-accent text-sm placeholder:text-muted-tertiary focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all font-mono tracking-tight"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[13px] font-bold text-[#8a8a92] uppercase tracking-wider pl-0.5">API Secret (Privada)</label>
+                <label className="text-[13px] font-bold text-muted uppercase tracking-wider pl-0.5">API Secret (Privada)</label>
                 <input
                   type="password"
                   value={formApiSecret}
                   onChange={(e) => setFormApiSecret(e.target.value)}
                   placeholder="Cole aqui..."
-                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-3.5 px-4 text-accent text-sm placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all font-mono tracking-tight"
+                  className="w-full bg-surface border border-border/80 rounded-2xl py-3.5 px-4 text-accent text-sm placeholder:text-muted-tertiary focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all font-mono tracking-tight"
                 />
               </div>
 
@@ -181,12 +181,12 @@ export default function ConnectionsPage() {
                 {isSubmitting ? 'Validando...' : 'Conectar Carteira'}
               </button>
 
-              <div className="flex items-start gap-3 pt-4 border-t border-[#2a2a2e]/40 mt-4">
+              <div className="flex items-start gap-3 pt-4 border-t border-border/40 mt-4">
                 <div className="p-1.5 bg-positive/10 rounded-lg">
                   <ShieldCheck size={16} className="text-positive shrink-0" />
                 </div>
-                <p className="text-[11px] text-[#8a8a92] leading-relaxed">
-                  Criptografado com <strong className="text-white font-medium">AES-256</strong>. Exija permissões apenas de leitura (Read-Only) na sua corretora. Nunca armazenamos permissões de saque.
+                <p className="text-[11px] text-muted leading-relaxed">
+                  Criptografado com <strong className="text-foreground font-medium">AES-256</strong>. Exija permissões apenas de leitura (Read-Only) na sua corretora. Nunca armazenamos permissões de saque.
                 </p>
               </div>
             </div>
@@ -195,7 +195,7 @@ export default function ConnectionsPage() {
 
         {/* ── Right Column: Connected List ── */}
         <div className="lg:col-span-7 lg:order-2 order-1 space-y-4 animate-fade-in stagger-1">
-          <h2 className="text-[11px] font-bold text-[#6a6a72] uppercase tracking-widest pl-1 mb-2">Contas Ativas</h2>
+          <h2 className="text-[11px] font-bold text-muted-secondary uppercase tracking-widest pl-1 mb-2">Contas Ativas</h2>
 
           {isLoading ? (
             <div className="grid grid-cols-1 gap-4">
@@ -203,31 +203,31 @@ export default function ConnectionsPage() {
               <Skeleton className="h-32 rounded-3xl" />
             </div>
           ) : connections.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-[#5a5a62] glass-card rounded-3xl border-dashed">
-              <Plug size={40} className="mb-4 text-[#3a3a42]" />
-              <p className="font-bold text-white font-[family-name:var(--font-outfit)]">Nenhuma integração</p>
-              <p className="text-sm text-[#6a6a72] mt-1 text-center max-w-xs">Sincronize sua primeira conta usando o formulário ao lado.</p>
+            <div className="flex flex-col items-center justify-center py-20 text-muted-tertiary glass-card rounded-3xl border-dashed">
+              <Plug size={40} className="mb-4 text-border-hover" />
+              <p className="font-bold text-foreground font-[family-name:var(--font-outfit)]">Nenhuma integração</p>
+              <p className="text-sm text-muted-secondary mt-1 text-center max-w-xs">Sincronize sua primeira conta usando o formulário ao lado.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {connections.map((conn) => {
                 const isActive = conn.status === ConnectionStatusEnum.ACTIVE;
                 return (
-                  <div key={conn.id} className="glass-card rounded-3xl p-5 flex flex-col space-y-4 transition-all duration-200 hover:bg-[#1e1e22] relative overflow-hidden group">
+                  <div key={conn.id} className="glass-card rounded-3xl p-5 flex flex-col space-y-4 transition-all duration-200 hover:bg-card-hover relative overflow-hidden group">
                     {/* Status side bar indicator */}
                     <div className={`absolute left-0 top-0 bottom-0 w-1 ${isActive ? 'bg-positive' : 'bg-negative'}`} />
 
                     <div className="flex items-start justify-between pl-2">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-[#111114] flex items-center justify-center text-white border border-[#2a2a2e]/60 shadow-inner group-hover:border-accent/20 transition-colors">
-                          <LinkIcon size={20} className={isActive ? 'text-accent' : 'text-[#6a6a72]'} />
+                        <div className="h-12 w-12 rounded-2xl bg-surface flex items-center justify-center text-foreground border border-border/60 shadow-inner group-hover:border-accent/20 transition-colors">
+                          <LinkIcon size={20} className={isActive ? 'text-accent' : 'text-muted-secondary'} />
                         </div>
                         <div className="flex flex-col">
-                          <span className="text-white font-bold text-lg font-[family-name:var(--font-outfit)] group-hover:text-accent transition-colors">
+                          <span className="text-foreground font-bold text-lg font-[family-name:var(--font-outfit)] group-hover:text-accent transition-colors">
                             {conn.label || exchangeLabels[conn.type] || conn.type}
                           </span>
-                          <span className="text-[11px] text-[#6a6a72] flex items-center gap-1.5 font-medium mt-0.5">
-                            <span className="uppercase text-[9px] tracking-wider bg-[#111114] px-1.5 py-0.5 rounded text-[#8a8a92]">Última Sync</span>
+                          <span className="text-[11px] text-muted-secondary flex items-center gap-1.5 font-medium mt-0.5">
+                            <span className="uppercase text-[9px] tracking-wider bg-surface px-1.5 py-0.5 rounded text-muted">Última Sync</span>
                             <RefreshCw size={10} /> {formatDate(conn.last_synced_at)}
                           </span>
                         </div>
@@ -246,11 +246,11 @@ export default function ConnectionsPage() {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-[#2a2a2e]/40 pl-2">
+                    <div className="flex items-center justify-between pt-3 border-t border-border/40 pl-2">
                       <button
                         onClick={() => handleSync(conn.id)}
                         disabled={syncingId === conn.id}
-                        className="text-[13px] font-bold text-[#8a8a92] hover:text-white transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="text-[13px] font-bold text-muted hover:text-foreground transition-colors flex items-center gap-2 disabled:opacity-50"
                       >
                         {syncingId === conn.id ? (
                           <Loader2 size={14} className="animate-spin text-accent" />
@@ -262,7 +262,7 @@ export default function ConnectionsPage() {
                       <button
                         onClick={() => handleDelete(conn.id)}
                         disabled={deletingId === conn.id}
-                        className="text-[#6a6a72] hover:text-negative transition-colors p-2 rounded-xl hover:bg-negative/10 disabled:opacity-50"
+                        className="text-muted-secondary hover:text-negative transition-colors p-2 rounded-xl hover:bg-negative/10 disabled:opacity-50"
                         title="Remover conexão"
                       >
                         {deletingId === conn.id ? (

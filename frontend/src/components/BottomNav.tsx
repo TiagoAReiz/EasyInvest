@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, PieChart, ArrowLeftRight, Settings, Wallet } from 'lucide-react';
+import { Home, PieChart, ArrowLeftRight, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -8,7 +8,6 @@ const navItems = [
   { label: 'Início', href: '/dashboard', icon: Home },
   { label: 'Carteira', href: '/portfolio', icon: PieChart },
   { label: 'Conexões', href: '/connections', icon: ArrowLeftRight },
-  { label: 'Perfil', href: '/settings', icon: Settings },
 ];
 
 export default function BottomNav() {
@@ -17,14 +16,14 @@ export default function BottomNav() {
   return (
     <>
       {/* ── Desktop Sidebar ── */}
-      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[220px] flex-col bg-[#111114] border-r border-[#2a2a2e]/40 z-50">
+      <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-[220px] flex-col bg-surface border-r border-border/40 z-50">
 
         {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 h-16 border-b border-[#2a2a2e]/40">
+        <div className="flex items-center gap-2.5 px-5 h-16 border-b border-border/40">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10 ring-1 ring-accent/25">
             <Wallet size={16} className="text-accent" />
           </div>
-          <span className="text-base font-bold tracking-tight text-white font-[family-name:var(--font-outfit)]">
+          <span className="text-base font-bold tracking-tight text-foreground font-[family-name:var(--font-outfit)]">
             Easy<span className="text-accent">Invest</span>
           </span>
         </div>
@@ -42,7 +41,7 @@ export default function BottomNav() {
                 className={`group flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative ${
                   isActive
                     ? 'bg-accent/8 text-accent'
-                    : 'text-[#8a8a92] hover:text-white hover:bg-white/[0.03]'
+                    : 'text-muted hover:text-foreground hover:bg-foreground/[0.03]'
                 }`}
               >
                 {isActive && (
@@ -56,15 +55,15 @@ export default function BottomNav() {
         </nav>
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-[#2a2a2e]/40">
-          <p className="text-[10px] text-[#4a4a52] text-center font-[family-name:var(--font-dm-sans)]">
+        <div className="px-5 py-4 border-t border-border/40">
+          <p className="text-[10px] text-muted-faint text-center font-[family-name:var(--font-dm-sans)]">
             EasyInvest v1.0 MVP
           </p>
         </div>
       </aside>
 
       {/* ── Mobile Bottom Nav ── */}
-      <nav className="lg:hidden fixed bottom-0 w-full border-t border-[#2a2a2e]/40 bg-[#111114]/95 backdrop-blur-2xl pb-safe z-50">
+      <nav className="lg:hidden fixed bottom-0 w-full border-t border-border/40 bg-surface/95 backdrop-blur-2xl pb-safe z-50">
         <div className="flex justify-around items-center h-16 px-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
@@ -75,7 +74,7 @@ export default function BottomNav() {
                 key={item.href}
                 href={item.href}
                 className={`flex flex-col items-center justify-center w-16 h-full transition-all relative ${
-                  isActive ? 'text-accent' : 'text-[#5a5a62] hover:text-[#8a8a92]'
+                  isActive ? 'text-accent' : 'text-muted-tertiary hover:text-muted'
                 }`}
               >
                 {isActive && (

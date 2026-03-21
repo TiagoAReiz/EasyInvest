@@ -18,14 +18,12 @@ export default function AddPositionPage() {
   const [assetType, setAssetType] = useState<AssetType>('variavel');
   const { results, isSearching, search } = useAssetSearch();
 
-  // Variavel fields
   const [tickerQuery, setTickerQuery] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<AssetResponse | null>(null);
   const [quantity, setQuantity] = useState('');
   const [averagePrice, setAveragePrice] = useState('');
   const [institution, setInstitution] = useState('');
 
-  // Fixa fields
   const [fixaName, setFixaName] = useState('');
   const [fixaInstitution, setFixaInstitution] = useState('');
   const [investedAmount, setInvestedAmount] = useState('');
@@ -37,12 +35,11 @@ export default function AddPositionPage() {
   const [error, setError] = useState<string | null>(null);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  // Stepper progress logic
   const getProgress = () => {
     if (assetType === 'variavel') {
-      let p = 1; // Step 1: Type selected
-      if (selectedAsset) p = 2; // Step 2: Asset selected
-      if (selectedAsset && quantity && averagePrice) p = 3; // Step 3: Values filled
+      let p = 1;
+      if (selectedAsset) p = 2;
+      if (selectedAsset && quantity && averagePrice) p = 3;
       return p;
     } else {
       let p = 1;
@@ -67,7 +64,6 @@ export default function AddPositionPage() {
     setTickerQuery(asset.ticker);
     setShowDropdown(false);
 
-    // Busca preço atual e pré-preenche o campo de preço médio
     setIsFetchingPrice(true);
     try {
       const price = await getAssetCurrentPrice(asset.id);
@@ -115,7 +111,6 @@ export default function AddPositionPage() {
 
       setIsSubmitting(true);
       try {
-        // Cria (ou reutiliza) o ativo de renda fixa no catálogo
         const asset = await createFixedIncomeAsset(fixaName);
 
         await createPosition({
@@ -139,30 +134,32 @@ export default function AddPositionPage() {
     }
   };
 
+  const inputClass = 'w-full bg-surface border border-border/80 rounded-2xl py-4 px-4 text-foreground placeholder:text-muted-tertiary focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all hover:border-border-hover';
+
   return (
     <div className="flex flex-col px-4 pt-8 pb-10 lg:px-8 lg:pt-10 max-w-2xl mx-auto w-full">
 
       {/* ── Wizard Header ── */}
       <header className="flex items-center justify-between mb-8 animate-fade-in relative z-20">
-        <Link href="/dashboard" className="flex items-center justify-center w-10 h-10 bg-[#1e1e22] text-[#8a8a92] hover:text-white hover:bg-[#2a2a2e] transition-colors rounded-full border border-[#2a2a2e]/60">
+        <Link href="/dashboard" className="flex items-center justify-center w-10 h-10 bg-card-hover text-muted hover:text-foreground hover:bg-border transition-colors rounded-full border border-border/60">
           <ChevronLeft size={20} strokeWidth={2.5} />
         </Link>
-        <span className="text-[11px] font-bold text-[#6a6a72] uppercase tracking-widest bg-[#161619] py-1.5 px-3 rounded-full border border-[#2a2a2e]/40">
+        <span className="text-[11px] font-bold text-muted-secondary uppercase tracking-widest bg-card py-1.5 px-3 rounded-full border border-border/40">
           Passo {step} de 3
         </span>
       </header>
-      
+
       <div className="mb-8 text-center animate-fade-in stagger-1">
-        <h1 className="text-3xl font-extrabold text-white font-[family-name:var(--font-outfit)]">Lançamento Novo</h1>
-        <p className="text-sm text-[#6a6a72] mt-2">Adicione registros manuais de investimentos comprados.</p>
+        <h1 className="text-3xl font-extrabold text-foreground font-[family-name:var(--font-outfit)]">Lançamento Novo</h1>
+        <p className="text-sm text-muted-secondary mt-2">Adicione registros manuais de investimentos comprados.</p>
       </div>
 
       {/* ── Toggle (Step 1) ── */}
-      <div className="flex p-1.5 bg-[#111114] rounded-2xl mb-8 border border-[#2a2a2e]/60 animate-fade-in stagger-2 relative">
+      <div className="flex p-1.5 bg-surface rounded-2xl mb-8 border border-border/60 animate-fade-in stagger-2 relative">
         <button
           onClick={() => setAssetType('variavel')}
           className={`flex-1 py-3 text-[13px] font-bold rounded-xl transition-all duration-300 z-10 ${
-            assetType === 'variavel' ? 'text-black' : 'text-[#6a6a72] hover:text-white'
+            assetType === 'variavel' ? 'text-background' : 'text-muted-secondary hover:text-foreground'
           }`}
         >
           Renda Variável
@@ -170,27 +167,26 @@ export default function AddPositionPage() {
         <button
           onClick={() => setAssetType('fixa')}
           className={`flex-1 py-3 text-[13px] font-bold rounded-xl transition-all duration-300 z-10 ${
-            assetType === 'fixa' ? 'text-black' : 'text-[#6a6a72] hover:text-white'
+            assetType === 'fixa' ? 'text-background' : 'text-muted-secondary hover:text-foreground'
           }`}
         >
           Renda Fixa
         </button>
-        
-        {/* Animated Pill Background */}
-        <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-accent rounded-xl shadow-[0_0_15px_rgba(245,197,24,0.3)] transition-all duration-300 ease-in-out ${
+
+        <div className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-accent rounded-xl shadow-[0_0_15px_var(--accent-glow)] transition-all duration-300 ease-in-out ${
           assetType === 'variavel' ? 'left-1.5' : 'left-[50%]'
         }`} />
       </div>
 
       {/* ── Form Body (Steps 2-3) ── */}
       <section className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col space-y-6 animate-fade-in stagger-3 relative gold-top-accent">
-        
+
         {assetType === 'variavel' ? (
           <>
             <div className="space-y-2 relative">
-              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Código do Ativo (Ticker)</label>
+              <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Código do Ativo (Ticker)</label>
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6a6a72] group-focus-within:text-accent transition-colors" size={18} />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-secondary group-focus-within:text-accent transition-colors" size={18} />
                 <input
                   type="text"
                   value={tickerQuery}
@@ -198,10 +194,9 @@ export default function AddPositionPage() {
                   onFocus={() => results.length > 0 && setShowDropdown(true)}
                   onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
                   placeholder="Ex: PETR4, HGLG11"
-                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm font-bold uppercase tracking-wider hover:border-[#3a3a42]"
+                  className={`${inputClass} pl-12 text-sm font-bold uppercase tracking-wider`}
                 />
-                
-                {/* Visual confirmation tick if selected */}
+
                 {selectedAsset && (
                   <CheckCircle2 size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-positive" />
                 )}
@@ -223,27 +218,27 @@ export default function AddPositionPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Qtd Comprada</label>
+                <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Qtd Comprada</label>
                 <input
                   type="number"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
                   placeholder="0"
-                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
+                  className={`${inputClass} text-base font-medium font-mono`}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Preço Médio</label>
+                <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Preço Médio</label>
                 <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a5a62] font-semibold text-sm group-focus-within:text-accent transition-colors">R$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-tertiary font-semibold text-sm group-focus-within:text-accent transition-colors">R$</span>
                   <input
                     type="number"
                     value={averagePrice}
                     onChange={(e) => setAveragePrice(e.target.value)}
                     placeholder={isFetchingPrice ? 'Buscando...' : '0,00'}
                     disabled={isFetchingPrice}
-                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-10 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42] disabled:opacity-60"
+                    className={`${inputClass} pl-10 text-base font-medium font-mono disabled:opacity-60`}
                   />
                   {isFetchingPrice && (
                     <Loader2 size={16} className="absolute right-4 top-1/2 -translate-y-1/2 text-accent animate-spin" />
@@ -253,93 +248,92 @@ export default function AddPositionPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Corretora (Instituição)</label>
+              <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Corretora (Instituição)</label>
               <input
                 type="text"
                 value={institution}
                 onChange={(e) => setInstitution(e.target.value)}
                 placeholder="Ex: Inter, NuInvest"
-                className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42]"
+                className={`${inputClass} text-sm`}
               />
             </div>
           </>
         ) : (
-          /* Renda Fixa Fields */
           <>
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Nome / Título Original</label>
+              <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Nome / Título Original</label>
               <input
                 type="text"
                 value={fixaName}
                 onChange={(e) => setFixaName(e.target.value)}
                 placeholder="Ex: CDB Inter 120% CDI"
-                className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm font-bold tracking-wide hover:border-[#3a3a42]"
+                className={`${inputClass} text-sm font-bold tracking-wide`}
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Corretora / Banco</label>
+              <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Corretora / Banco</label>
               <input
                 type="text"
                 value={fixaInstitution}
                 onChange={(e) => setFixaInstitution(e.target.value)}
                 placeholder="Ex: Nubank, XP"
-                className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42]"
+                className={`${inputClass} text-sm`}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Aporte Inicial</label>
+                <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Aporte Inicial</label>
                 <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#5a5a62] font-semibold text-sm group-focus-within:text-accent transition-colors">R$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-tertiary font-semibold text-sm group-focus-within:text-accent transition-colors">R$</span>
                   <input
                     type="number"
                     value={investedAmount}
                     onChange={(e) => setInvestedAmount(e.target.value)}
                     placeholder="0,00"
-                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-10 pr-4 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
+                    className={`${inputClass} pl-10 text-base font-medium font-mono`}
                   />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1">Taxa Pagadora</label>
+                <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1">Taxa Pagadora</label>
                 <div className="relative group">
                   <input
                     type="number"
                     value={rateValue}
                     onChange={(e) => setRateValue(e.target.value)}
                     placeholder="110"
-                    className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 pl-4 pr-14 text-white placeholder:text-[#5a5a62] focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-base font-medium font-mono hover:border-[#3a3a42]"
+                    className={`${inputClass} pr-14 text-base font-medium font-mono`}
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#5a5a62] font-semibold text-[11px] uppercase group-focus-within:text-accent transition-colors">% CDI</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-tertiary font-semibold text-[11px] uppercase group-focus-within:text-accent transition-colors">% CDI</span>
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1 flex items-center gap-1.5 ">
+                <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1 flex items-center gap-1.5">
                   <Calendar size={12} strokeWidth={3} className="text-accent"/> Data Inicial
                 </label>
                 <input
                   type="date"
                   value={investmentDate}
                   onChange={(e) => setInvestmentDate(e.target.value)}
-                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42] [color-scheme:dark]"
+                  className={`${inputClass} text-sm`}
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[11px] font-bold text-[#8a8a92] uppercase tracking-wider pl-1 flex items-center gap-1.5">
-                  <Calendar size={12} strokeWidth={3} className="text-[#a0a0a8]"/> Vencimento
+                <label className="text-[11px] font-bold text-muted uppercase tracking-wider pl-1 flex items-center gap-1.5">
+                  <Calendar size={12} strokeWidth={3} className="text-muted-medium"/> Vencimento
                 </label>
                 <input
                   type="date"
                   value={maturityDate}
                   onChange={(e) => setMaturityDate(e.target.value)}
-                  className="w-full bg-[#111114] border border-[#2a2a2e]/80 rounded-2xl py-4 px-4 text-white focus:outline-none focus:ring-1 focus:ring-accent/40 focus:border-accent/40 transition-all text-sm hover:border-[#3a3a42] [color-scheme:dark]"
+                  className={`${inputClass} text-sm`}
                 />
               </div>
             </div>
@@ -363,7 +357,7 @@ export default function AddPositionPage() {
           {isSubmitting ? 'Registrando...' : 'Confirmar e Salvar Posição'}
         </button>
       </div>
-      
+
     </div>
   );
 }

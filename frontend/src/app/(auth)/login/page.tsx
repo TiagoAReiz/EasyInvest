@@ -39,7 +39,6 @@ export default function LoginPage() {
     }
   }, [login, router]);
 
-  // Wait for Google SDK to load, then initialize + render button
   useEffect(() => {
     if (authLoading || isAuthenticated || initializedRef.current) return;
 
@@ -57,7 +56,6 @@ export default function LoginPage() {
         cancel_on_tap_outside: false,
       });
 
-      // Render invisible but clickable Google button over custom button
       if (googleBtnRef.current) {
         window.google.accounts.id.renderButton(googleBtnRef.current, {
           type: 'standard',
@@ -69,19 +67,15 @@ export default function LoginPage() {
         });
       }
 
-      // Try One Tap auto-sign-in (bonus — works when Google allows it)
       window.google.accounts.id.prompt();
-
       setSdkReady(true);
     };
 
-    // If SDK already loaded, init immediately
     if (window.google) {
       initGoogle();
       return;
     }
 
-    // Otherwise poll until it loads (handles script loading race)
     const interval = setInterval(() => {
       if (window.google) {
         clearInterval(interval);
@@ -106,42 +100,37 @@ export default function LoginPage() {
       {/* ── Left Panel — Cinematic Branding ── */}
       <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden bg-background flex-col items-center justify-center p-16 grain-overlay">
 
-        {/* Abstract geometric shapes */}
         <div className="absolute top-20 right-20 w-32 h-32 border border-accent/10 rounded-2xl rotate-12" style={{ animation: 'float 8s ease-in-out infinite' }} />
         <div className="absolute bottom-32 left-16 w-20 h-20 border border-accent/8 rounded-full" style={{ animation: 'float 6s ease-in-out infinite 1s' }} />
         <div className="absolute top-1/3 left-1/4 w-2 h-2 bg-accent/30 rounded-full" style={{ animation: 'float 5s ease-in-out infinite 0.5s' }} />
         <div className="absolute bottom-1/3 right-1/3 w-1.5 h-1.5 bg-accent/20 rounded-full" style={{ animation: 'float 7s ease-in-out infinite 2s' }} />
 
-        {/* Gradient glow blobs */}
         <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-accent/[0.04] rounded-full blur-[100px]" />
         <div className="absolute bottom-1/4 -right-32 w-[400px] h-[400px] bg-accent/[0.03] rounded-full blur-[120px]" />
 
         <div className="relative z-10 max-w-lg space-y-10 animate-fade-in">
-          {/* Logo mark */}
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 ring-1 ring-accent/25" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}>
             <Wallet size={28} className="text-accent" />
           </div>
 
-          {/* Hero text — big, bold, cinematic */}
           <div className="space-y-5">
-            <h1 className="text-5xl xl:text-6xl font-extrabold tracking-tight text-white leading-[1.1] font-[family-name:var(--font-outfit)]">
+            <h1 className="text-5xl xl:text-6xl font-extrabold tracking-tight text-foreground leading-[1.1] font-[family-name:var(--font-outfit)]">
               <span className="animate-fade-in block">Todos os seus</span>
               <span className="animate-fade-in stagger-1 block">investimentos,</span>
               <span className="animate-fade-in stagger-2 block text-accent">um único lugar.</span>
             </h1>
-            <p className="text-lg text-[#8a8a92] leading-relaxed max-w-md animate-fade-in stagger-3">
+            <p className="text-lg text-muted leading-relaxed max-w-md animate-fade-in stagger-3">
               Ações, FIIs, criptomoedas e renda fixa consolidados com segurança e inteligência.
             </p>
           </div>
 
-          {/* Feature list */}
           <div className="space-y-4 pt-2">
             {features.map((f, i) => (
               <div key={i} className={`flex items-center gap-3.5 animate-fade-in stagger-${i + 4}`}>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1e1e22] ring-1 ring-[#2a2a2e]">
-                  <f.icon size={17} className="text-[#8a8a92]" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-card-hover ring-1 ring-border">
+                  <f.icon size={17} className="text-muted" />
                 </div>
-                <span className="text-sm text-[#a0a0a8]">{f.label}</span>
+                <span className="text-sm text-muted-medium">{f.label}</span>
               </div>
             ))}
           </div>
@@ -149,39 +138,34 @@ export default function LoginPage() {
       </div>
 
       {/* ── Right Panel — Login Form ── */}
-      <div className="flex flex-1 flex-col items-center justify-center bg-[#111114] px-6 py-16 lg:bg-[#111114] relative">
-        {/* Subtle radial glow on mobile */}
+      <div className="flex flex-1 flex-col items-center justify-center bg-surface px-6 py-16 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/[0.03] rounded-full blur-[100px] lg:hidden" />
 
         <div className="w-full max-w-sm flex flex-col items-center relative z-10 animate-fade-in">
 
-          {/* Logo (mobile) */}
           <div className="lg:hidden flex h-20 w-20 items-center justify-center rounded-3xl bg-accent/10 ring-1 ring-accent/25 mb-8" style={{ animation: 'pulse-glow 4s ease-in-out infinite' }}>
             <Wallet size={40} className="text-accent" />
           </div>
 
-          {/* Desktop logo inline */}
           <div className="hidden lg:flex items-center gap-2.5 mb-12">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent/10 ring-1 ring-accent/25">
               <Wallet size={20} className="text-accent" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white font-[family-name:var(--font-outfit)]">
+            <span className="text-xl font-bold tracking-tight text-foreground font-[family-name:var(--font-outfit)]">
               Easy<span className="text-accent">Invest</span>
             </span>
           </div>
 
-          <h2 className="text-3xl lg:text-2xl font-bold tracking-tight text-white mb-3 text-center font-[family-name:var(--font-outfit)]">
+          <h2 className="text-3xl lg:text-2xl font-bold tracking-tight text-foreground mb-3 text-center font-[family-name:var(--font-outfit)]">
             <span className="lg:hidden">Consolide seus investimentos</span>
             <span className="hidden lg:inline">Entrar na sua conta</span>
           </h2>
-          <p className="text-[#6a6a72] text-center text-base lg:text-sm mb-10 max-w-xs">
+          <p className="text-muted-secondary text-center text-base lg:text-sm mb-10 max-w-xs">
             <span className="lg:hidden">Acompanhe todos os seus ativos em um único lugar, de forma segura e inteligente.</span>
             <span className="hidden lg:inline">Use sua conta Google para acessar o painel.</span>
           </p>
 
-          {/* Google Sign In — Google rendered button overlaid on custom button */}
           <div className="relative w-full">
-            {/* Custom visual button (underneath) */}
             <div
               className={`group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl btn-accent px-8 py-4 text-[15px] ${isLoggingIn ? 'opacity-70 cursor-not-allowed' : 'active:scale-[0.97]'}`}
             >
@@ -203,7 +187,6 @@ export default function LoginPage() {
               )}
             </div>
 
-            {/* Google's real rendered button — invisible overlay, captures clicks */}
             {!isLoggingIn && (
               <div
                 ref={googleBtnRef}
@@ -214,10 +197,10 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="mt-4 text-sm text-red-400 text-center">{error}</p>
+            <p className="mt-4 text-sm text-negative text-center">{error}</p>
           )}
 
-          <p className="mt-10 text-xs text-[#3a3a42] text-center max-w-xs leading-relaxed">
+          <p className="mt-10 text-xs text-border-hover text-center max-w-xs leading-relaxed">
             Ao entrar, você concorda com nossos Termos de Serviço e Política de Privacidade.
           </p>
         </div>

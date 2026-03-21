@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import BottomNav from '@/components/BottomNav';
+import Header from '@/components/Header';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 export default function AppLayout({
@@ -16,7 +17,8 @@ export default function AppLayout({
     <ProtectedRoute>
       <div className="min-h-screen bg-background text-foreground">
         {!hideNav && <BottomNav />}
-        <main className={hideNav ? '' : 'pb-20 lg:pb-0 lg:ml-[220px]'}>
+        {!hideNav && <Header />}
+        <main className={hideNav ? '' : 'pt-14 lg:pt-16 pb-20 lg:pb-0 lg:ml-[220px]'}>
           {children}
         </main>
       </div>

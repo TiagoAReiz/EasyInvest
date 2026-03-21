@@ -81,27 +81,27 @@ export default function EditPositionModal({ position, onClose, onSave, onDelete 
     }
   };
 
-  const inputClass = 'w-full bg-[#111114] border border-[#2a2a2e]/60 rounded-xl py-2.5 px-4 text-sm text-white placeholder:text-[#6a6a72] focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all';
-  const labelClass = 'block text-xs font-bold text-[#8a8a92] uppercase tracking-wider mb-1.5';
+  const inputClass = 'w-full bg-surface border border-border/60 rounded-xl py-2.5 px-4 text-sm text-foreground placeholder:text-muted-secondary focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all';
+  const labelClass = 'block text-xs font-bold text-muted uppercase tracking-wider mb-1.5';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-[#161619] border border-[#2a2a2e] rounded-2xl shadow-2xl shadow-black/80 animate-fade-in overflow-hidden">
+      <div className="relative w-full max-w-md bg-card border border-border rounded-2xl shadow-2xl shadow-shadow animate-fade-in overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#2a2a2e]/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
           <div>
-            <h2 className="text-lg font-bold text-white font-[family-name:var(--font-outfit)]">
+            <h2 className="text-lg font-bold text-foreground font-[family-name:var(--font-outfit)]">
               {isFixedIncome ? position.asset_name : position.ticker}
             </h2>
             {!isFixedIncome && (
-              <p className="text-xs text-[#6a6a72] mt-0.5">{position.asset_name}</p>
+              <p className="text-xs text-muted-secondary mt-0.5">{position.asset_name}</p>
             )}
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg text-[#6a6a72] hover:text-white hover:bg-[#2a2a2e]/60 transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-muted-secondary hover:text-foreground hover:bg-border/60 transition-colors">
             <X size={18} />
           </button>
         </div>
@@ -163,14 +163,14 @@ export default function EditPositionModal({ position, onClose, onSave, onDelete 
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#2a2a2e]/60 flex items-center justify-between gap-3">
+        <div className="px-6 py-4 border-t border-border/60 flex items-center justify-between gap-3">
           <button
             onClick={handleDelete}
             disabled={isDeleting || isSaving}
             className={`flex items-center gap-1.5 text-sm font-semibold px-3 py-2 rounded-xl transition-colors ${
               confirmDelete
                 ? 'bg-negative/20 text-negative hover:bg-negative/30'
-                : 'text-[#6a6a72] hover:text-negative hover:bg-negative/10'
+                : 'text-muted-secondary hover:text-negative hover:bg-negative/10'
             } disabled:opacity-50`}
           >
             {isDeleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
@@ -181,14 +181,14 @@ export default function EditPositionModal({ position, onClose, onSave, onDelete 
             <button
               onClick={onClose}
               disabled={isSaving || isDeleting}
-              className="px-4 py-2 text-sm font-semibold text-[#8a8a92] hover:text-white rounded-xl hover:bg-[#2a2a2e]/60 transition-colors disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold text-muted hover:text-foreground rounded-xl hover:bg-border/60 transition-colors disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving || isDeleting}
-              className="px-5 py-2 text-sm font-bold bg-accent text-[#0a0a0c] rounded-xl hover:brightness-110 transition-all disabled:opacity-50 flex items-center gap-1.5"
+              className="px-5 py-2 text-sm font-bold bg-accent text-background rounded-xl hover:brightness-110 transition-all disabled:opacity-50 flex items-center gap-1.5"
             >
               {isSaving && <Loader2 size={14} className="animate-spin" />}
               Salvar

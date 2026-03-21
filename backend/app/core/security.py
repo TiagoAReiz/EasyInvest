@@ -10,7 +10,7 @@ from app.core.config import settings
 ALGORITHM = settings.JWT_ALGORITHM
 
 
-def create_access_token(user_id: UUID, plan: str) -> str:
+def create_access_token(user_id: UUID, plan: str, token_version: int = 0) -> str:
     expire = datetime.now(timezone.utc) + timedelta(
         seconds=settings.JWT_ACCESS_TOKEN_EXPIRATION_SECONDS
     )
@@ -18,6 +18,7 @@ def create_access_token(user_id: UUID, plan: str) -> str:
         "sub": str(user_id),
         "plan": plan,
         "type": "access",
+        "tv": token_version,
         "exp": expire,
     }
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=ALGORITHM)

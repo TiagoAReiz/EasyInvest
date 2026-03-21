@@ -161,6 +161,42 @@ export interface ConnectionCreateRequest {
   api_secret: string;
 }
 
+// Settings
+
+export interface UserSettings {
+  theme: string;
+  notif_price_alerts: boolean;
+  notif_dividends: boolean;
+  notif_sync: boolean;
+  notif_maturity: boolean;
+}
+
+export interface UserSettingsUpdate {
+  theme?: string;
+  notif_price_alerts?: boolean;
+  notif_dividends?: boolean;
+  notif_sync?: boolean;
+  notif_maturity?: boolean;
+}
+
+// Notifications
+
+export enum NotificationTypeEnum {
+  PRICE = "PRICE",
+  SYNC = "SYNC",
+  DIVIDEND = "DIVIDEND",
+  MATURITY = "MATURITY",
+}
+
+export interface NotificationResponse {
+  id: string;
+  type: NotificationTypeEnum;
+  title: string;
+  body: string;
+  read: boolean;
+  created_at: string;
+}
+
 // Subscription / Paywall
 
 export interface PlanOption {
