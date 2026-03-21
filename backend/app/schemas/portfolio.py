@@ -9,7 +9,7 @@ from app.db.models import AssetTypeEnum, OriginEnum, RateTypeEnum
 class PositionCreate(BaseModel):
     asset_id: UUID 
     quantity: float
-    average_price: float
+    average_price: float 
     origin: OriginEnum = OriginEnum.MANUAL
     institution_name: str | None = None
     # Campos de renda fixa (opcionais)
