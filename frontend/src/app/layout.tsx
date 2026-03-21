@@ -28,12 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <head>
-        <Script src="https://accounts.google.com/gsi/client" strategy="beforeInteractive" />
-      </head>
       <body
         className={`${outfit.variable} ${dmSans.variable} antialiased`}
       >
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
         <AuthProvider>
           {children}
         </AuthProvider>
