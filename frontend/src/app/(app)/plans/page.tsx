@@ -56,10 +56,10 @@ export default function PlansPage() {
 
   return (
     <div className="flex flex-col items-center justify-center px-4 py-12 lg:py-16 min-h-screen relative">
-      
+
       {/* ── Background Elements ── */}
       <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-accent/[0.03] rounded-full blur-[120px] pointer-events-none" />
-      
+
       {/* ── Header ── */}
       <div className="text-center mb-12 animate-fade-in relative z-10 w-full">
         <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/10 ring-1 ring-accent/25 mb-6 shadow-[0_0_20px_-5px_rgba(245,197,24,0.15)]">
@@ -82,11 +82,10 @@ export default function PlansPage() {
           return (
             <div
               key={plan.plan_months}
-              className={`glass-card rounded-3xl p-6 lg:p-7 flex flex-col relative transition-all duration-300 hover:-translate-y-1 ${
-                isRecommended
-                  ? 'border-accent bg-accent/[0.04] ring-2 ring-accent/30 shadow-[0_0_40px_-10px_rgba(245,197,24,0.2)]'
-                  : 'hover:border-accent/30'
-              }`}
+              className={`glass-card rounded-3xl p-6 lg:p-7 flex flex-col relative transition-all duration-300 hover:-translate-y-1 ${isRecommended
+                ? 'border-accent bg-accent/[0.04] ring-2 ring-accent/30 shadow-[0_0_40px_-10px_rgba(245,197,24,0.2)]'
+                : 'hover:border-accent/30'
+                }`}
             >
               {isRecommended && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent text-[#0c0c0e] text-[10px] font-extrabold px-4 py-1.5 rounded-full uppercase tracking-widest shadow-lg">
@@ -145,11 +144,10 @@ export default function PlansPage() {
               <button
                 onClick={() => handleCheckout(plan.plan_months)}
                 disabled={loadingPlan !== null}
-                className={`w-full py-4 rounded-xl font-extrabold text-[14px] transition-all duration-200 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                  isRecommended
-                    ? 'btn-accent shadow-lg'
-                    : 'bg-[#1e1e22] text-white hover:bg-white hover:text-black ring-1 ring-[#2a2a2e] border-none'
-                }`}
+                className={`w-full py-4 rounded-xl font-extrabold text-[14px] transition-all duration-200 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${isRecommended
+                  ? 'btn-accent shadow-lg'
+                  : 'bg-[#1e1e22] text-white hover:bg-white hover:text-black ring-1 ring-[#2a2a2e] border-none'
+                  }`}
               >
                 {isCurrentLoading && <Loader2 size={18} className="animate-spin" />}
                 {isCurrentLoading ? 'Processando...' : 'Assinar Plano'}
@@ -160,11 +158,7 @@ export default function PlansPage() {
       </div>
 
       {/* ── Footer Info ── */}
-      <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 pt-6 border-t border-[#2a2a2e]/40 animate-fade-in stagger-2 relative z-10">
-        <Link href="/dashboard" className="flex items-center gap-2 text-[13px] text-[#6a6a72] hover:text-white font-medium transition-colors">
-          <ArrowLeft size={16} />
-          <span>Voltar para o Dashboard</span>
-        </Link>
+      <div className="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center gap-6 pt-6 border-t border-[#2a2a2e]/40 animate-fade-in stagger-2 relative z-10">
         <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-3">
           <div className="flex items-center gap-1.5">
             <ShieldCheck size={14} className="text-[#4a4a52]" />
@@ -180,7 +174,7 @@ export default function PlansPage() {
           </div>
         </div>
       </div>
-      
+
     </div>
   );
 }
