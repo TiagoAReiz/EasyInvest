@@ -35,7 +35,7 @@ _quote_cache: dict[str, tuple[float, dict]] = {}
 
 def _is_cache_valid(entry: tuple[float, object] | None, ttl: int) -> bool:
     if entry is None:
-        return False
+        return False 
     return (time.time() - entry[0]) < ttl
 
 
