@@ -160,3 +160,33 @@ export interface ConnectionCreateRequest {
   api_key: string;
   api_secret: string;
 }
+
+// Subscription / Paywall
+
+export interface PlanOption {
+  plan_months: number;
+  price: number;
+  price_per_month: number;
+  label: string;
+  discount_percent: number;
+}
+
+export interface PaywallStatusResponse {
+  enabled: boolean;
+  plans: PlanOption[];
+  user_plan: string | null;
+  expires_at: string | null;
+}
+
+export interface CheckoutResponse {
+  checkout_url: string;
+}
+
+export interface SubscriptionResponse {
+  id: string;
+  plan_months: number;
+  amount: number;
+  status: string;
+  starts_at: string;
+  expires_at: string;
+}

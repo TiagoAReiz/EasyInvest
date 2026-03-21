@@ -4,8 +4,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.security import decode_token
-from app.db.models import User
+from app.db.models import PlanEnum, User
 from app.db.session import get_db
 
 security_scheme = HTTPBearer()
@@ -31,3 +32,15 @@ def get_current_user(
             detail="Usuário não encontrado",
         )
     return user
+
+
+def require_premium(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Exige que o usuário tenha plano PREMIUM quando paywall está ativo."""
+    if settings.PAYWALL_ENABLED and current_user.plan != PlanEnum.PREMIUM:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Assinatura premium necessária",
+        )
+    return current_user

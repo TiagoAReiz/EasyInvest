@@ -25,6 +25,15 @@ class Settings(BaseSettings):
     # Criptografia para WalletConnection
     ENCRYPTION_KEY: str = ""
 
+    # Paywall / Mercado Pago
+    PAYWALL_ENABLED: bool = True
+    MP_ACCESS_TOKEN: str = ""
+    MP_WEBHOOK_SECRET: str = ""
+    PLAN_PRICE_1M: float = 15.00
+    PLAN_PRICE_3M: float = 40.00
+    PLAN_PRICE_6M: float = 72.00
+    PLAN_PRICE_12M: float = 120.00
+
     class Config:
         case_sensitive = True
         env_file = ".env"

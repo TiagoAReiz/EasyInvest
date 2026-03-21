@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from .routers import assets, auth, connections, history, portfolio
+from .routers import assets, auth, connections, history, portfolio, subscription
 
 api_router = APIRouter()
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
@@ -8,3 +8,4 @@ api_router.include_router(portfolio.router, prefix="/portfolio", tags=["portfoli
 api_router.include_router(history.router, prefix="/portfolio/history", tags=["history"])
 api_router.include_router(assets.router, prefix="/assets", tags=["assets"])
 api_router.include_router(connections.router, prefix="/connections", tags=["connections"])
+api_router.include_router(subscription.router, prefix="/subscription", tags=["subscription"])

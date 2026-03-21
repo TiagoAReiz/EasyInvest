@@ -60,6 +60,13 @@ class RateTypeEnum(str, enum.Enum):
     IPCA_PLUS = "IPCA_PLUS"
 
 
+class SubscriptionStatusEnum(str, enum.Enum):
+    PENDING = "PENDING"
+    ACTIVE = "ACTIVE"
+    EXPIRED = "EXPIRED"
+    CANCELLED = "CANCELLED"
+
+
 class TransactionTypeEnum(str, enum.Enum):
     BUY = "BUY"
     SELL = "SELL"
@@ -96,6 +103,9 @@ class User(Base):
         back_populates="user", cascade="all, delete-orphan"
     )
     history: Mapped[list["PositionHistory"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+    subscriptions: Mapped[list["Subscription"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
     )
 
@@ -269,3 +279,28 @@ class PositionHistory(Base):
 
     # Relationships
     user: Mapped["User"] = relationship(back_populates="history")
+
+
+class Subscription(Base):
+    __tablename__ = "subscriptions"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid, ForeignKey("users.id", ondelete="CASCADE")
+    )
+    mp_payment_id: Mapped[str] = mapped_column(String, unique=True)
+    plan_months: Mapped[int] = mapped_column()
+    amount: Mapped[float] = mapped_column(Numeric(10, 2))
+    status: Mapped[SubscriptionStatusEnum] = mapped_column(
+        Enum(SubscriptionStatusEnum), default=SubscriptionStatusEnum.PENDING
+    )
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
+    # Relationships
+    user: Mapped["User"] = relationship(back_populates="subscriptions")

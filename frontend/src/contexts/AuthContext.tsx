@@ -11,6 +11,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (idToken: string) => Promise<void>;
   logout: () => void;
+  refetchUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -44,6 +45,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.location.href = '/login';
   }, []);
 
+  const refetchUser = useCallback(async () => {
+    try {
+      const me = await getMe();
+      setUser(me);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
@@ -52,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isAuthenticated: !!user,
         login,
         logout,
+        refetchUser,
       }}
     >
       {children}

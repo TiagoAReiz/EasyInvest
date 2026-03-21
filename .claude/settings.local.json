@@ -36,7 +36,8 @@
       "Bash(ls:*)",
       "Bash(python3 -c \"from app.api.v1.routers.portfolio import router; from app.api.v1.routers.history import router; print\\(''OK''\\)\")",
       "Bash(py -c \"from app.api.v1.routers.portfolio import router; from app.api.v1.routers.history import router; print\\(''OK''\\)\")",
-      "Bash(py -c \"from app.services.brapi import get_quotes_batch; print\\(''OK''\\)\")"
+      "Bash(py -c \"from app.services.brapi import get_quotes_batch; print\\(''OK''\\)\")",
+      "mcp__mercadopago__search_documentation"
     ]
   }
 }
