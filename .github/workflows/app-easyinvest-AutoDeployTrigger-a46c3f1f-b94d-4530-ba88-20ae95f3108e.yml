@@ -56,5 +56,12 @@ jobs:
             BRAPI_BASE_URL=https://brapi.dev/api
             BCB_SGS_BASE_URL=https://api.bcb.gov.br/dados/serie
             ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
-
+            PAYWALL_ENABLED=true
+            MP_ACCESS_TOKEN=${{ secrets.MP_ACCESS_TOKEN }}
+            MP_WEBHOOK_SECRET=${{ secrets.MP_WEBHOOK_SECRET }}
+            BACKEND_PUBLIC_URL=${{ secrets.BACKEND_PUBLIC_URL }}
+            PLAN_PRICE_1M=15.00
+            PLAN_PRICE_3M=40.00
+            PLAN_PRICE_6M=72.00
+            PLAN_PRICE_12M=120.00
 

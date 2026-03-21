@@ -63,6 +63,10 @@ Browser → Next.js (3000) → FastAPI (8000) → PostgreSQL (5432)
 Backend: `DATABASE_URL`, `BRAPI_TOKEN`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` (see `backend/.env.example`)
 Frontend: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (see `frontend/.env.example`)
 
+## IMPORTANTE: Variáveis de Ambiente
+
+**SEMPRE** que adicionar uma nova variável de ambiente no `backend/app/core/config.py`, atualizar também o workflow de deploy em `.github/workflows/app-easyinvest-AutoDeployTrigger-*.yml`. Secrets vão como `${{ secrets.NOME }}` e valores fixos vão hardcoded. Sem isso o deploy vai subir com valor default/vazio.
+
 ## Deployment
 
 - **Frontend**: Vercel (auto-deploy on push to `main`)
