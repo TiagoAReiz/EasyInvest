@@ -7,7 +7,7 @@ Série 12 = Taxa CDI diária (% a.a.)
 
 import logging
 import time
-from datetime import date
+from datetime import date 
 
 import httpx
 
