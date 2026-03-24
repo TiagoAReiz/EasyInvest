@@ -11,7 +11,7 @@ class AssetResponse(BaseModel):
     ticker: str
     name: str
     type: AssetTypeEnum
-    sector: str | None
+    sector: str | None 
 
     model_config = {"from_attributes": True}
 
