@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
@@ -21,6 +22,8 @@ from app.services.mercadopago import (
     get_plan_price,
     verify_webhook_signature,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -155,11 +158,17 @@ async def mp_webhook(
     if not data_id:
         return {"status": "ignored"}
 
-    # Validar signature
+    # Validar signature (apenas quando o header x-signature está presente)
+    # Formato IPN não envia x-signature; a segurança vem da consulta à API do MP
     x_signature = request.headers.get("x-signature", "")
     x_request_id = request.headers.get("x-request-id", "")
 
-    if not verify_webhook_signature(x_signature, x_request_id, data_id):
+    if x_signature and not verify_webhook_signature(x_signature, x_request_id, data_id):
+        logger.warning(
+            "Webhook signature inválida para payment %s (x-signature=%s)",
+            data_id,
+            x_signature[:30],
+        )
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Assinatura inválida",

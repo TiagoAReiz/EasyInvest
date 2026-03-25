@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     PAYWALL_ENABLED: bool = True
     MP_ACCESS_TOKEN: str = ""
     MP_WEBHOOK_SECRET: str = ""
+    MP_SANDBOX: bool = False  # True para usar sandbox_init_point em vez de init_point
     BACKEND_PUBLIC_URL: str = ""  # URL pública do backend (ex: https://app-easyinvest...azurecontainerapps.io)
     PLAN_PRICE_1M: float = 15.00
     PLAN_PRICE_3M: float = 40.00

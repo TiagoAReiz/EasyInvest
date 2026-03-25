@@ -72,6 +72,9 @@ def create_checkout_preference(
         error_msg = response.get("message", str(response))
         raise RuntimeError(f"Erro ao criar preferência no Mercado Pago: {error_msg}")
 
+    # Usar sandbox_init_point quando em modo teste
+    if settings.MP_SANDBOX and "sandbox_init_point" in response:
+        return response["sandbox_init_point"]
     return response["init_point"]
 
 
@@ -83,6 +86,9 @@ def verify_webhook_signature(
     """Valida a assinatura HMAC-SHA256 do webhook do Mercado Pago."""
     if not settings.MP_WEBHOOK_SECRET:
         return True  # Em dev sem secret configurado, aceita tudo
+
+    if not x_signature:
+        return False  # Sem header x-signature não dá pra validar
 
     # Formato: ts=...,v1=...
     parts = {}
