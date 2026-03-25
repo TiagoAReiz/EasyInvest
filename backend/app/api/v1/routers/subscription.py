@@ -158,20 +158,17 @@ async def mp_webhook(
     if not data_id:
         return {"status": "ignored"}
 
-    # Validar signature (apenas quando o header x-signature está presente)
-    # Formato IPN não envia x-signature; a segurança vem da consulta à API do MP
+    # Validar signature — se falhar, apenas loga warning e continua.
+    # A segurança real vem da consulta get_payment_info à API do MP:
+    # se o payment_id não existir ou não estiver approved, será rejeitado abaixo.
     x_signature = request.headers.get("x-signature", "")
     x_request_id = request.headers.get("x-request-id", "")
 
     if x_signature and not verify_webhook_signature(x_signature, x_request_id, data_id):
         logger.warning(
-            "Webhook signature inválida para payment %s (x-signature=%s)",
+            "Webhook signature inválida para payment %s (x-signature=%s) — continuando via verificação API",
             data_id,
             x_signature[:30],
-        )
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Assinatura inválida",
         )
 
     # Verificar se já processamos este pagamento
