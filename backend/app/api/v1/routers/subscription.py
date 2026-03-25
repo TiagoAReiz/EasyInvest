@@ -118,14 +118,16 @@ async def mp_webhook(
 ):
     """Recebe notificação do Mercado Pago e ativa a assinatura.
 
-    Suporta dois formatos:
-    - IPN (query params): ?data.id=123&type=payment
-    - Webhook (JSON body): {"type": "payment", "data": {"id": "123"}}
+    Suporta três formatos de notificação:
+    - Webhook JSON body: {"type": "payment", "data": {"id": "123"}}
+    - Webhook query params: ?data.id=123&type=payment
+    - IPN query params: ?id=123&topic=payment
     """
-    # Tentar extrair do body JSON (formato webhook)
     data_id = ""
     notification_type = ""
+    action = ""
 
+    # 1) Tentar extrair do body JSON (formato webhook)
     try:
         body = await request.json()
         notification_type = body.get("type", "")
@@ -133,14 +135,18 @@ async def mp_webhook(
         data_id = str(body.get("data", {}).get("id", ""))
     except Exception:
         body = {}
-        notification_type = ""
-        action = ""
 
-    # Fallback: formato IPN (query params)
+    # 2) Fallback: formato webhook via query params (?data.id=...&type=...)
     if not data_id:
         data_id = request.query_params.get("data.id", "")
         notification_type = request.query_params.get("type", notification_type)
-        action = ""
+
+    # 3) Fallback: formato IPN via query params (?id=...&topic=...)
+    if not data_id:
+        data_id = request.query_params.get("id", "")
+        topic = request.query_params.get("topic", "")
+        if topic == "payment":
+            notification_type = "payment"
 
     # Filtrar apenas notificações de pagamento
     if notification_type != "payment" and action != "payment.created":
