@@ -1,3 +1,4 @@
+import logging
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -7,7 +8,10 @@ from app.core.deps import get_current_user
 from app.core.security import encrypt_value
 from app.db.models import ConnectionStatusEnum, User, WalletConnection
 from app.db.session import get_db
-from app.schemas.connection import ConnectionCreate, ConnectionResponse
+from app.schemas.connection import ConnectionCreate, ConnectionResponse, ConnectionSyncResponse
+from app.services.exchange_sync import sync_connection as do_sync
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -25,13 +29,13 @@ def list_connections(
     )
 
 
-@router.post("", response_model=ConnectionResponse, status_code=201)
+@router.post("", response_model=ConnectionSyncResponse, status_code=201)
 def create_connection(
     body: ConnectionCreate,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Registra nova API Key de exchange (criptografada antes de gravar)."""
+    """Registra nova API Key de exchange (criptografada) e dispara sync inicial."""
     connection = WalletConnection(
         user_id=current_user.id,
         type=body.type,
@@ -43,7 +47,26 @@ def create_connection(
     db.add(connection)
     db.commit()
     db.refresh(connection)
-    return connection
+
+    # Sync inicial — se falhar, conexão continua criada com status=ERROR
+    sync_summary = None
+    try:
+        result = do_sync(db, connection)
+        if result.error:
+            logger.warning("Sync inicial falhou para conexão %s: %s", connection.id, result.error)
+        else:
+            sync_summary = {
+                "created": result.created,
+                "updated": result.updated,
+                "removed": result.removed,
+            }
+        db.refresh(connection)
+    except Exception as e:
+        logger.error("Erro no sync inicial da conexão %s: %s", connection.id, e)
+
+    response = ConnectionSyncResponse.model_validate(connection)
+    response.sync_summary = sync_summary
+    return response
 
 
 @router.delete("/{connection_id}", status_code=204)
@@ -52,7 +75,7 @@ def delete_connection(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Remove uma conexão de exchange."""
+    """Remove uma conexão de exchange. Posições sincronizadas são mantidas (connection_id=NULL via SET NULL)."""
     conn = (
         db.query(WalletConnection)
         .filter(
@@ -71,13 +94,13 @@ def delete_connection(
     db.commit()
 
 
-@router.post("/{connection_id}/sync", response_model=ConnectionResponse)
+@router.post("/{connection_id}/sync", response_model=ConnectionSyncResponse)
 def sync_connection(
     connection_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    """Força sync manual com a exchange. (Placeholder — lógica de sync será implementada nos services)."""
+    """Força sync manual com a exchange."""
     conn = (
         db.query(WalletConnection)
         .filter(
@@ -92,5 +115,21 @@ def sync_connection(
             detail="Conexão não encontrada",
         )
 
-    # TODO: Chamar service de sync da exchange específica
-    return conn
+    result = do_sync(db, conn)
+
+    if result.error:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST
+            if "Aguarde" not in result.error
+            else status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=result.error,
+        )
+
+    db.refresh(conn)
+    response = ConnectionSyncResponse.model_validate(conn)
+    response.sync_summary = {
+        "created": result.created,
+        "updated": result.updated,
+        "removed": result.removed,
+    }
+    return response

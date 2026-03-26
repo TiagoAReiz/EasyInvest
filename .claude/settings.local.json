@@ -53,7 +53,12 @@
       "Bash(node -e \":*)",
       "mcp__mercadopago__save_webhook",
       "Bash(grep -E \"\\\\.\\(ts|tsx|js|jsx|json\\)$\")",
-      "Bash(find /c/Users/tiago/Desktop/WorkPlace/Projeto Day/frontend/src -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.js -o -name *.jsx \\\\\\))"
+      "Bash(find /c/Users/tiago/Desktop/WorkPlace/Projeto Day/frontend/src -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.js -o -name *.jsx \\\\\\))",
+      "WebSearch",
+      "Bash(grep -r \"binance\\\\|mercado.*bitcoin\\\\|BINANCE\\\\|MERCADO_BITCOIN\" /c/Users/tiago/Desktop/WorkPlace/Projeto Day/backend --include=*.py)",
+      "Bash(py -c \"from app.services.exchange_sync import sync_connection, SyncResult; print\\(''exchange_sync OK''\\)\")",
+      "Bash(py -m pip install ccxt)",
+      "Bash(py -c \"from app.api.v1.routers.connections import router; print\\(''connections router OK''\\)\")"
     ]
   }
 }

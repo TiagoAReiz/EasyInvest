@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, ArrowUpRight, ArrowDownRight, PackageOpen } from 'lucide-react';
+import { Plus, Link as LinkIcon, ArrowUpRight, ArrowDownRight, PackageOpen } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import Link from 'next/link';
 import { usePortfolioSummary } from '@/hooks/usePortfolio';
@@ -65,6 +65,13 @@ export default function DashboardPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link
+            href="/connections"
+            className="flex items-center gap-2 bg-card-hover hover:bg-border text-foreground py-2.5 px-4 rounded-full font-medium transition-all duration-200 active:scale-[0.97] ring-1 ring-border/50 text-sm"
+          >
+            <LinkIcon size={16} className="text-muted" />
+            <span>Conectar</span>
+          </Link>
           <Link
             href="/add-position"
             className="flex items-center gap-2 btn-accent py-2.5 px-5 rounded-full font-bold transition-all duration-200 text-sm"

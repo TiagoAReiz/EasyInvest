@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Search, TrendingUp, TrendingDown, PackageOpen, Calendar, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { usePortfolio } from '@/hooks/usePortfolio';
-import { AssetTypeEnum } from '@/lib/types';
+import { AssetTypeEnum, OriginEnum } from '@/lib/types';
 import type { PositionWithQuote, PositionUpdateRequest } from '@/lib/types';
 import { updatePosition, deletePosition } from '@/services/portfolioService';
 import Skeleton from '@/components/Skeleton';
@@ -26,6 +26,11 @@ const tabAssetTypes: Record<TabType, AssetTypeEnum[]> = {
 
 const formatCurrency = (val: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+const originBadge: Record<string, string> = {
+  [OriginEnum.BINANCE_API]: 'Binance',
+  [OriginEnum.MERCADO_BITCOIN_API]: 'MB',
+};
 
 export default function PortfolioPage() {
   const { positions, isLoading, error, refetch } = usePortfolio();
@@ -274,6 +279,11 @@ export default function PortfolioPage() {
                   <div className="flex flex-col min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <span className="text-foreground font-bold font-[family-name:var(--font-outfit)]">{pos.ticker}</span>
+                      {originBadge[pos.origin] && (
+                        <span className="text-[9px] text-positive/80 font-bold bg-positive/[0.08] px-1.5 py-0.5 rounded uppercase">
+                          {originBadge[pos.origin]}
+                        </span>
+                      )}
                       <span className="text-[10px] text-accent/70 font-semibold bg-accent/[0.06] px-1.5 py-0.5 rounded uppercase">
                         {pos.quantity} ud
                       </span>
@@ -298,7 +308,14 @@ export default function PortfolioPage() {
                 <div className="hidden lg:grid lg:grid-cols-12 gap-4 items-center relative z-10">
                   <div className="col-span-4 flex items-center gap-4">
                     <div className="flex flex-col">
-                      <span className="text-foreground font-bold text-base font-[family-name:var(--font-outfit)]">{pos.ticker}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-foreground font-bold text-base font-[family-name:var(--font-outfit)]">{pos.ticker}</span>
+                        {originBadge[pos.origin] && (
+                          <span className="text-[9px] text-positive/80 font-bold bg-positive/[0.08] px-1.5 py-0.5 rounded uppercase">
+                            {originBadge[pos.origin]}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-xs text-muted truncate max-w-[200px]">{pos.asset_name}</span>
                     </div>
                   </div>

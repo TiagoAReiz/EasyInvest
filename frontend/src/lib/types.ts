@@ -11,6 +11,7 @@ export enum AssetTypeEnum {
 export enum OriginEnum {
   MANUAL = "MANUAL",
   BINANCE_API = "BINANCE_API",
+  MERCADO_BITCOIN_API = "MERCADO_BITCOIN_API",
   B3_API = "B3_API",
 }
 
@@ -93,6 +94,7 @@ export interface PositionWithQuote {
   ticker: string;
   asset_name: string;
   asset_type: AssetTypeEnum;
+  connection_id: string | null;
   current_price: number | null;
   current_value: number | null;
   profit_loss: number | null;
@@ -126,6 +128,16 @@ export interface ConnectionResponse {
   status: ConnectionStatusEnum;
   last_synced_at: string | null;
   created_at: string;
+}
+
+export interface SyncSummary {
+  created: number;
+  updated: number;
+  removed: number;
+}
+
+export interface ConnectionSyncResponse extends ConnectionResponse {
+  sync_summary: SyncSummary | null;
 }
 
 // Requests

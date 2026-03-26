@@ -23,3 +23,13 @@ class ConnectionResponse(BaseModel):
     created_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class SyncSummary(BaseModel):
+    created: int = 0
+    updated: int = 0
+    removed: int = 0
+
+
+class ConnectionSyncResponse(ConnectionResponse):
+    sync_summary: SyncSummary | dict | None = None
