@@ -35,6 +35,7 @@ PLAN_LABELS = {
 def create_checkout_preference(
     user_id: UUID,
     user_email: str,
+    user_name: str,
     plan_months: int,
     back_url_base: str,
     notification_url: str,
@@ -44,16 +45,29 @@ def create_checkout_preference(
     price = get_plan_price(plan_months)
     label = PLAN_LABELS[plan_months]
 
+    # Separar nome e sobrenome (User model armazena campo único do Google OAuth)
+    name_parts = user_name.strip().split(" ", 1)
+    first_name = name_parts[0]
+    last_name = name_parts[1] if len(name_parts) > 1 else ""
+
     preference_data = {
         "items": [
             {
+                "id": "easyinvest-premium",
                 "title": f"EasyInvest Premium — {label}",
+                "description": f"Assinatura EasyInvest Premium plano {label} ({plan_months} meses)",
+                "category_id": "services",
                 "quantity": 1,
                 "unit_price": price,
                 "currency_id": "BRL",
             }
         ],
-        "payer": {"email": user_email},
+        "payer": {
+            "email": user_email,
+            "name": user_name,
+            "first_name": first_name,
+            "last_name": last_name,
+        },
         "back_urls": {
             "success": f"{back_url_base}/plans/success",
             "failure": f"{back_url_base}/plans",
@@ -61,6 +75,8 @@ def create_checkout_preference(
         },
         "notification_url": notification_url,
         "external_reference": f"{user_id}|{plan_months}",
+        "statement_descriptor": "EASYINVEST",
+        "binary_mode": True,
     }
 
     result = sdk.preference().create(preference_data)

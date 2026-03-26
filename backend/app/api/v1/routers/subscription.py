@@ -101,6 +101,7 @@ def create_checkout(
         checkout_url = create_checkout_preference(
             user_id=current_user.id,
             user_email=current_user.email,
+            user_name=current_user.name,
             plan_months=body.plan_months.value,
             back_url_base=origin,
             notification_url=notification_url,

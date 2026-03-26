@@ -28,6 +28,9 @@ pip install -r requirements.txt
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
+### Python command
+Neste ambiente Windows, o comando Python é `py` (não `python` ou `python3`).
+
 ### Frontend (Next.js 16 / React 19 / TypeScript 5)
 ```bash
 cd frontend

@@ -46,7 +46,12 @@
       "Bash(py -c \"from app.api.v1.api import api_router; print\\(''API router OK, routes:'', len\\(api_router.routes\\)\\)\")",
       "Bash(docker-compose restart:*)",
       "Bash(docker-compose ps:*)",
-      "Bash(docker-compose logs:*)"
+      "Bash(docker-compose logs:*)",
+      "mcp__mercadopago__notifications_history",
+      "mcp__mercadopago__quality_checklist",
+      "Bash(python3 -c \":*)",
+      "Bash(node -e \":*)",
+      "mcp__mercadopago__save_webhook"
     ]
   }
 }
