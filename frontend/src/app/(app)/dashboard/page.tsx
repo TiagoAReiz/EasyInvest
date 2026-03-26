@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Plus, ArrowUpRight, ArrowDownRight, PackageOpen } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import Link from 'next/link';
@@ -17,8 +18,9 @@ const ALLOCATION_COLORS = {
 };
 
 export default function DashboardPage() {
+  const [timeFilter, setTimeFilter] = useState('30d');
   const { summary, isLoading: summaryLoading } = usePortfolioSummary();
-  const { history, isLoading: historyLoading } = useHistory('30d');
+  const { history, isLoading: historyLoading } = useHistory(timeFilter);
 
   const chartData = history.map((h) => ({
     date: new Date(h.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
@@ -176,6 +178,72 @@ export default function DashboardPage() {
             </section>
 
           </div>
+
+          {/* ── Bento Grid Middle Row: Evolution Chart ── */}
+          <section className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col space-y-6 animate-fade-in stagger-2 relative gold-top-accent">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Evolução Patrimonial</h3>
+              <div className="flex bg-surface rounded-lg p-1 ring-1 ring-border/50">
+                {['7d', '30d', '90d', '1y'].map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setTimeFilter(f)}
+                    className={`text-xs font-bold px-4 py-1.5 rounded-md transition-all duration-200 ${
+                      timeFilter === f
+                        ? 'bg-accent text-background shadow-sm'
+                        : 'text-muted-secondary hover:text-foreground'
+                    }`}
+                  >
+                    {f}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="h-64 lg:h-72 w-full">
+              {historyLoading ? (
+                <Skeleton className="w-full h-full rounded-xl" />
+              ) : chartData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorAccent" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'var(--card)',
+                        border: '1px solid var(--accent-glow)',
+                        borderRadius: '12px',
+                        color: 'var(--foreground)',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        padding: '10px 14px',
+                        boxShadow: '0 10px 25px -5px var(--shadow-color)',
+                      }}
+                      formatter={(value) => [formatBRL(Number(value)), 'Patrimônio']}
+                      labelStyle={{ color: 'var(--muted)', marginBottom: '4px' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="value"
+                      stroke="var(--accent)"
+                      strokeWidth={3}
+                      fillOpacity={1}
+                      fill="url(#colorAccent)"
+                      activeDot={{ r: 6, fill: 'var(--accent)', stroke: 'var(--card)', strokeWidth: 3 }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-muted-tertiary text-sm">
+                  Sem dados para o período selecionado.
+                </div>
+              )}
+            </div>
+          </section>
 
           {/* ── Bento Grid Bottom Row: Top Performers ── */}
           {topPerformers.length > 0 && (

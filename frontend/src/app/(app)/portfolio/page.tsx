@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, TrendingUp, TrendingDown, PackageOpen, Calendar } from 'lucide-react';
+import { Search, TrendingUp, TrendingDown, PackageOpen, Calendar, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { usePortfolio } from '@/hooks/usePortfolio';
 import { AssetTypeEnum } from '@/lib/types';
 import type { PositionWithQuote, PositionUpdateRequest } from '@/lib/types';
@@ -69,7 +70,15 @@ export default function PortfolioPage() {
           </p>
         </div>
 
-        <div className="relative w-full lg:w-80">
+        <div className="flex items-center gap-3 w-full lg:w-auto">
+          <Link
+            href="/add-position"
+            className="flex items-center gap-2 btn-accent py-2.5 px-5 rounded-full font-bold transition-all duration-200 text-sm shrink-0"
+          >
+            <Plus size={16} />
+            <span>Adicionar</span>
+          </Link>
+          <div className="relative flex-1 lg:w-80">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-secondary" size={18} />
           <input
             type="text"
@@ -78,6 +87,7 @@ export default function PortfolioPage() {
             placeholder="Buscar por nome ou ticker..."
             className="w-full bg-surface border border-border/60 rounded-full py-2.5 pl-11 pr-5 text-sm text-foreground placeholder:text-muted-secondary focus:outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/40 transition-all shadow-inner"
           />
+          </div>
         </div>
       </header>
 
@@ -328,6 +338,15 @@ export default function PortfolioPage() {
                   ? "Nao encontramos resultados para sua busca atual."
                   : "Sua carteira nesta categoria esta vazia. Adicione novas posicoes para ve-las aqui."}
               </p>
+              {!searchQuery && (
+                <Link
+                  href="/add-position"
+                  className="flex items-center gap-2 btn-accent py-2.5 px-6 rounded-full font-bold transition-all duration-200 text-sm mt-6"
+                >
+                  <Plus size={16} />
+                  Adicionar Posição
+                </Link>
+              )}
             </div>
           )}
         </div>
