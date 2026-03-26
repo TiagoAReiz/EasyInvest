@@ -1,9 +1,8 @@
 'use client';
 
-import { Plus, Link as LinkIcon, TrendingUp, ArrowUpRight, ArrowDownRight, PackageOpen } from 'lucide-react';
+import { Plus, ArrowUpRight, ArrowDownRight, PackageOpen } from 'lucide-react';
 import { AreaChart, Area, ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 import Link from 'next/link';
-import { useState } from 'react';
 import { usePortfolioSummary } from '@/hooks/usePortfolio';
 import { useHistory } from '@/hooks/useHistory';
 import Skeleton from '@/components/Skeleton';
@@ -18,9 +17,8 @@ const ALLOCATION_COLORS = {
 };
 
 export default function DashboardPage() {
-  const [timeFilter, setTimeFilter] = useState('30d');
   const { summary, isLoading: summaryLoading } = usePortfolioSummary();
-  const { history, isLoading: historyLoading } = useHistory(timeFilter);
+  const { history, isLoading: historyLoading } = useHistory('30d');
 
   const chartData = history.map((h) => ({
     date: new Date(h.date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
@@ -66,13 +64,6 @@ export default function DashboardPage() {
 
         <div className="flex items-center gap-3">
           <Link
-            href="/connections"
-            className="flex items-center gap-2 bg-card-hover hover:bg-border text-foreground py-2.5 px-4 rounded-full font-medium transition-all duration-200 active:scale-[0.97] ring-1 ring-border/50 text-sm"
-          >
-            <LinkIcon size={16} className="text-muted" />
-            <span>Conectar</span>
-          </Link>
-          <Link
             href="/add-position"
             className="flex items-center gap-2 btn-accent py-2.5 px-5 rounded-full font-bold transition-all duration-200 text-sm"
           >
@@ -86,7 +77,7 @@ export default function DashboardPage() {
         <div className="flex flex-col items-center justify-center py-20 text-muted-tertiary animate-fade-in glass-card rounded-2xl">
           <PackageOpen size={48} className="mb-4 text-border-hover" />
           <p className="text-lg font-medium text-muted">Carteira vazia</p>
-          <p className="text-sm text-muted-secondary mt-1 mb-6">Conecte uma corretora ou adicione manualmente.</p>
+          <p className="text-sm text-muted-secondary mt-1 mb-6">Adicione seus investimentos manualmente.</p>
           <div className="flex gap-3">
             <Link href="/add-position" className="btn-accent px-6 py-2.5 rounded-full font-bold transition-all text-sm">
               Adicionar Manual
@@ -185,72 +176,6 @@ export default function DashboardPage() {
             </section>
 
           </div>
-
-          {/* ── Bento Grid Middle Row: Evolution Chart ── */}
-          <section className="glass-card rounded-3xl p-6 lg:p-8 flex flex-col space-y-6 animate-fade-in stagger-2 relative gold-top-accent">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-muted uppercase tracking-wider">Evolução Patrimonial</h3>
-              <div className="flex bg-surface rounded-lg p-1 ring-1 ring-border/50">
-                {['7d', '30d', '90d', '1y'].map((f) => (
-                  <button
-                    key={f}
-                    onClick={() => setTimeFilter(f)}
-                    className={`text-xs font-bold px-4 py-1.5 rounded-md transition-all duration-200 ${
-                      timeFilter === f
-                        ? 'bg-accent text-background shadow-sm'
-                        : 'text-muted-secondary hover:text-foreground'
-                    }`}
-                  >
-                    {f}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="h-64 lg:h-72 w-full">
-              {historyLoading ? (
-                <Skeleton className="w-full h-full rounded-xl" />
-              ) : chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 5, right: 0, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorAccent" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.3} />
-                        <stop offset="100%" stopColor="var(--accent)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <Tooltip
-                      contentStyle={{
-                        backgroundColor: 'var(--card)',
-                        border: '1px solid var(--accent-glow)',
-                        borderRadius: '12px',
-                        color: 'var(--foreground)',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        padding: '10px 14px',
-                        boxShadow: '0 10px 25px -5px var(--shadow-color)',
-                      }}
-                      formatter={(value) => [formatBRL(Number(value)), 'Patrimônio']}
-                      labelStyle={{ color: 'var(--muted)', marginBottom: '4px' }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke="var(--accent)"
-                      strokeWidth={3}
-                      fillOpacity={1}
-                      fill="url(#colorAccent)"
-                      activeDot={{ r: 6, fill: 'var(--accent)', stroke: 'var(--card)', strokeWidth: 3 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="flex items-center justify-center h-full text-muted-tertiary text-sm">
-                  Sem dados para o período selecionado.
-                </div>
-              )}
-            </div>
-          </section>
 
           {/* ── Bento Grid Bottom Row: Top Performers ── */}
           {topPerformers.length > 0 && (

@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { User, Bell, Settings, Shield, HelpCircle, LogOut, ChevronDown } from 'lucide-react';
+import { User, Settings, Shield, HelpCircle, LogOut, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 const dropdownItems = [
   { icon: User, label: 'Perfil', href: '/settings/profile' },
-  { icon: Bell, label: 'Notificações', href: '/settings/notifications' },
   { icon: Settings, label: 'Preferências', href: '/settings/preferences' },
   { icon: Shield, label: 'Segurança', href: '/settings/security' },
   { icon: HelpCircle, label: 'FAQ', href: '/settings/faq' },
@@ -34,13 +33,6 @@ export default function Header() {
 
       {/* Right — Gear + Avatar + Dropdown */}
       <div className="flex items-center gap-3" ref={ref}>
-        <Link
-          href="/notifications"
-          className="p-2 rounded-lg text-muted-secondary hover:text-foreground hover:bg-foreground/[0.04] transition-all"
-        >
-          <Bell size={18} />
-        </Link>
-
         <Link
           href="/settings"
           className="p-2 rounded-lg text-muted-secondary hover:text-foreground hover:bg-foreground/[0.04] transition-all"

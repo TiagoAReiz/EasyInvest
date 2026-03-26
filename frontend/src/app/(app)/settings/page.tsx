@@ -1,14 +1,13 @@
 'use client';
 
-import { Settings as SettingsIcon, Shield, HelpCircle, LogOut, ChevronRight, User, Bell, Wallet } from 'lucide-react';
+import { Settings as SettingsIcon, Shield, HelpCircle, LogOut, ChevronRight, User, Wallet } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 
 const menuItems = [
   { icon: User, label: 'Perfil', desc: 'Seus dados pessoais e conta', href: '/settings/profile' },
-  { icon: Bell, label: 'Notificações', desc: 'Alertas de preço e eventos', href: '/settings/notifications' },
   { icon: SettingsIcon, label: 'Preferências Gerais', desc: 'Tema, formato de moeda e fuso horário', href: '/settings/preferences' },
-  { icon: Shield, label: 'Segurança & Privacidade', desc: 'Sessões ativas, tokens e 2FA', href: '/settings/security' },
+  { icon: Shield, label: 'Segurança & Privacidade', desc: 'Login via Google e autenticação', href: '/settings/security' },
   { icon: HelpCircle, label: 'Central de Ajuda', desc: 'FAQ, tutoriais e contato direto', href: '/settings/faq' },
 ];
 

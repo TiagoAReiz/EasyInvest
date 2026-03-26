@@ -10,12 +10,8 @@ const faqItems = [
     a: 'Acesse "Carteira" e clique em "Adicionar". Escolha entre Renda Variável ou Renda Fixa, busque o ativo, preencha quantidade e preço médio e confirme.',
   },
   {
-    q: 'Como conectar minha conta da Binance?',
-    a: 'Vá em "Conexões", selecione Binance, cole sua API Key e Secret (somente leitura). O EasyInvest sincroniza automaticamente suas posições de cripto.',
-  },
-  {
     q: 'Meus dados estão seguros?',
-    a: 'Sim. Utilizamos criptografia em trânsito (HTTPS) e em repouso. As chaves de API das exchanges são armazenadas de forma segura e com permissão somente leitura — nunca temos acesso para operar na sua conta.',
+    a: 'Sim. Utilizamos criptografia em trânsito (HTTPS) e em repouso. Seus dados são armazenados de forma segura e a autenticação é feita via Google OAuth.',
   },
   {
     q: 'Como funciona o cálculo de rentabilidade?',
@@ -23,7 +19,7 @@ const faqItems = [
   },
   {
     q: 'O EasyInvest tem acesso à minha conta bancária?',
-    a: 'Não. O EasyInvest é uma ferramenta de consolidação. Não realizamos nenhuma transação financeira. As integrações com exchanges usam chaves somente leitura.',
+    a: 'Não. O EasyInvest é uma ferramenta de consolidação e visualização. Não realizamos nenhuma transação financeira em seu nome.',
   },
   {
     q: 'Posso usar o app gratuitamente?',

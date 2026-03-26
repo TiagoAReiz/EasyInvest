@@ -1,13 +1,12 @@
 'use client';
 
-import { Home, PieChart, ArrowLeftRight, Wallet } from 'lucide-react';
+import { Home, PieChart, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const navItems = [
   { label: 'Início', href: '/dashboard', icon: Home },
   { label: 'Carteira', href: '/portfolio', icon: PieChart },
-  { label: 'Conexões', href: '/connections', icon: ArrowLeftRight },
 ];
 
 export default function BottomNav() {
